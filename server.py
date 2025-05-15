@@ -6,9 +6,6 @@ from typing import List, Dict
 import logging
 import re
 
-# Cấu hình logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -19,6 +16,11 @@ es = Elasticsearch(
     verify_certs=False,
     ssl_show_warn=False 
 )
+
+# es = Elasticsearch(
+#     "https://934a7c2c20c740988176e6696afaf098.us-central1.gcp.cloud.es.io:443",
+#     api_key="NWN0RTFKWUJHS0dSZFVQVFU0SHc6Z2RDVFRVTHo2c0JPY1Z0ektaZ0lwUQ=="
+# )
 
 # Kiểm tra kết nối Elasticsearch
 if not es.ping():
@@ -58,8 +60,7 @@ async def safety_check(request: SafetyRequest):
 @app.post("/name-entity-recognition")
 async def ner_and_score(request: NERRequest):
     try:
-        ingredients = re.findall(r'\b\w+\b', request.content)
-    
+        ingredients = re.split(r',|\s+và\s+|\s+hoặc\s+', request.content)
     
         if not ingredients:
            return {"ingredients": [], "message": "Không tìm thấy thành phần trong văn bản"}
@@ -73,12 +74,13 @@ async def ner_and_score(request: NERRequest):
                 query={
                     "bool": {
                         "filter": [
-                            {"exists": {"field": f"ingredients.{ingredient}"}}  # Kiểm tra thành phần tồn tại
+                            {"exists": {"field": f"ingredients.{ingredient.upper()}"}}  # Kiểm tra thành phần tồn tại
                         ]
                     }
                 },
                 size=1
             )
+
             hits = result.get("hits", {}).get("hits", [])
             if hits:
                 hit = hits[0]
