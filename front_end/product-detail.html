@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWG Skin Deep</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
+    </div>
+  </header>  
+
+  <div class="main-content">
+    <form action="searching-result.html" method="GET" class="search-container fade-in">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar">
+    </form>  
+
+    <div class="hazard-header fade-in delay-1">
+      <div class="hazard-title"> </div>
+      <div class="hazard-links">
+        <a href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+        <span class="divider">|</span>
+        <a href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
+      </div>
+    </div>
+
+
+    <div class="hazard-container">
+      <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
+      <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
+    </div>      
+
+
+
+  <div class="background-image"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('query');
+    if (query) {
+      document.querySelector('.search-bar').value = query;
+    }
+  </script>
+
+  <script>
+    const button = document.getElementById("activateBtn");
+    window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true"
+    button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
+
+    button.addEventListener("click", function () {
+      window.isCosafeActive = !window.isCosafeActive;
+      localStorage.setItem("isCosafeActive", window.isCosafeActive);
+      this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
+      location.reload();
+    });
+  </script>
+
+
+  
+</body>
+</html>

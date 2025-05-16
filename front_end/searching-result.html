@@ -10,17 +10,26 @@
 <body>
   <header class="header">
     <div class="logo">
-      <a href="homepage.html" class="logo-link">EWG Skin Deep</a>
+      <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
     </div>
   </header>  
 
   <div class="main-content">
-    <form action="searchingresult.html" method="GET" class="search-container fade-in">
+    <form action="searching-result.html" method="GET" class="search-container fade-in">
       <input type="text" name="query" placeholder="Search for a product" class="search-bar">
     </form>  
 
+    <div class="hazard-header fade-in delay-1">
+      <div class="hazard-title"></div>
+      <div class="hazard-links">
+        <a id="scoreLink" href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+        <span class="divider">|</span>
+        <a id="verifiedLink" href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
+      </div>
+    </div>
+
+
     <div class="hazard-container">
-      <div class="hazard-score-range fade-in delay-1">Hazard Score Range</div>
       <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
       <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
     </div>    
@@ -48,21 +57,30 @@
     if (query) {
       document.querySelector('.search-bar').value = query;
     }
+
+    const scoreLink = document.getElementById('scoreLink');
+    const verifiedLink = document.getElementById('verifiedLink');
+
+    scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(query)}`;
+    verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(query)}`;
+
   </script>
 
   <script>
     const button = document.getElementById("activateBtn");
-    let isActive = false;
+    window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true"
+    button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
 
     button.addEventListener("click", function () {
-      isActive = !isActive;
-      this.textContent = isActive ? "Deactivate Cosafe" : "Activate Cosafe";
+      window.isCosafeActive = !window.isCosafeActive;
+      localStorage.setItem("isCosafeActive", window.isCosafeActive);
+      this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
       renderProducts(currentPage);
     });
   </script>
 
   <script>
-    // TO DO: Dữ liệu giả lập sản phẩm
+    //TO DO: Dữ liệu giả lập sản phẩm
     const products = [
       { img: "assets/images/product1.jpg", brand: "ADORABLE BABY", title: "Adorable Baby Natural Baby Lotion" },
       { img: "assets/images/product2.jpg", brand: "Common Heir", title: "Common Heir 10% Vitamin C Serum" },
@@ -71,7 +89,7 @@
       { img: "assets/images/product5.jpg", brand: "Just the Goods", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
     ];
 
-    const itemsPerPage = 2; 
+    const itemsPerPage = 3; 
     let currentPage = 1;
     const totalPages = Math.ceil(products.length / itemsPerPage);
 
@@ -98,22 +116,32 @@
           <div class="brand">${prod.brand}</div>
           <div class="title">${prod.title}</div>
         `;
+
+        card.addEventListener("click", () => {
+          const encodedTitle = encodeURIComponent(prod.title);
+
+          //TO DO: Truyền thông tin sản phẩm qua URL để chuyển đến trang chi tiết sản phẩm. Query là thông tin trên thanh tìm kiếm.
+          window.location.href = `product-detail.html?query=${query}&title=${encodedTitle}`;
+        });
+
         
         productGrid.appendChild(card);
       });
 
-      document.querySelectorAll('.title').forEach(el => {
+      if (window.isCosafeActive) {
+        document.querySelectorAll('.title').forEach(el => {
         //TO DO: tô màu cho tên của mỗi sản phẩm
         
         el.classList.remove('green-highlight', 'yellow-highlight', 'red-highlight');
         // if (Điều kiện để tô màu xanh) {
         //   el.classList.add('green-highlight');
         // } else if (Điều kiện để tô màu vàng) {
-        el.classList.add('yellow-highlight');
+             el.classList.add('yellow-highlight');
         // } else if (Điều kiện để tô màu đỏ) {
         //   el.classList.add('red-highlight');
         // }
       });
+      }
 
       pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
       prevBtn.disabled = currentPage === 1;

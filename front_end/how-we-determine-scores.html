@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWG Skin Deep</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
+    </div>
+  </header>  
+
+  <div class="main-content">
+    <form action="searching-result.html" method="GET" class="search-container fade-in">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar">
+    </form>  
+
+    <div class="hazard-header fade-in delay-1">
+      <div class="hazard-title"> </div>
+      <div class="hazard-links">
+        <a id="scoreLink" href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+        <span class="divider">|</span>
+        <a id="verifiedLink" href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
+      </div>
+    </div>
+
+    <div class="understanding-section fade-in delay-2">
+        <h1>Understanding Skin Deep<sup>®</sup> ratings</h1>
+        <p>Every product and ingredient in Skin Deep<sup>®</sup> gets a <strong>two-part score</strong> – one for hazard and one for data availability.</p>
+
+        <h2>Hazard Score</h2>
+        <img src="assets/images/hazard-score-range.png" alt="Hazard Score Scale" class="info-img">
+
+        <p>The Skin Deep ingredient hazard score, from 1 to 10, reflects known and suspected hazards linked to the ingredients.</p>
+
+        <img src="assets/images/hazard-flask-example.png" alt="Hazard Examples" class="info-img">
+
+        <p>A product’s hazard score is not an average of the ingredients’ hazard scores. It is calculated using a weight-of-evidence approach that factors in all of the hazards or health impacts associated with the ingredients. To see details of how our hazard scores are calculated, see the “Hazard Ratings” section of our methodology.</p>
+
+        <h2>Data Availability</h2>
+        <img src="assets/images/data-availability-scale.png" alt="Data Availability Scale" class="info-img">
+
+        <p>The Skin Deep data availability rating reflects the number of scientific studies about the product or ingredient in the published scientific literature. Not all ingredients are equal when it comes to safety data. Some have been studied extensively. For others there is only a modest volume of research, and still others have not been assessed at all. The data availability rating indicates the scope of data on which EWG has based an ingredient and/or product score.</p>
+
+        <div class="product-score-box">
+            <strong>Overall Product Score</strong>
+            <p>To calculate a product score, we review individual ingredient hazards and evaluate each product in relation to the rest of the products in the Skin Deep database. <strong>The safest products score well by both measures, with a low hazard rating and a fair or better data availability rating.</strong></p>
+        </div>
+    </div>
+
+
+  <div class="background-image"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('query');
+    if (query) {
+      document.querySelector('.search-bar').value = query;
+    }
+
+    const scoreLink = document.getElementById('scoreLink');
+    const verifiedLink = document.getElementById('verifiedLink');
+
+    scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(query)}`;
+    verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(query)}`;
+  </script>  
+</body>
+</html>

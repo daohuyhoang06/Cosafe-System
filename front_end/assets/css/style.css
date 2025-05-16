@@ -227,6 +227,37 @@ header {
   font-size: 20px;
 }
 
+.hazard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+  white-space: nowrap; 
+  overflow: hidden; 
+}
+
+.hazard-title {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.hazard-links a {
+  color: #007BFF; 
+  text-decoration: none;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.hazard-links a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  margin: 0 5px;
+  color: #999;
+}
+
 .hazard-container {
   display: flex;
   justify-content: space-between;
@@ -300,6 +331,140 @@ header {
 
 
 
+
+
+
+
+
+
+.understanding-section {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.understanding-section h1,
+.understanding-section h2 {
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.understanding-section h1 {
+  font-size: 36px;
+  text-align: center;
+}
+
+.understanding-section h2 {
+  font-size: 24px;
+  margin-top: 40px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.understanding-section p {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.understanding-section a {
+  color: #00695c;
+  text-decoration: underline;
+}
+
+.info-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 20px auto;
+}
+
+.product-score-box {
+  border: 1px solid #ccc;
+  padding: 20px;
+  background-color: #f9f9f9;
+  margin-top: 40px;
+}
+
+
+
+
+
+
+
+
+
+.ewg-verified-info {
+  max-width: 900px;
+  margin: 60px auto;
+  text-align: left;
+}
+
+.ewg-verified-info h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #111;
+}
+
+.verified-flex {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.verified-logo {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.verified-description p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.checklist li {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #333;
+}
+
+.checklist li strong {
+  color: #008000;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.lab-image {
+  width: 100%;
+  max-width: 100%;
+  margin: 30px 0;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.ingredient-concerns h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  color: #222;
+}
+
+.ingredient-concerns p {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
 
 
 

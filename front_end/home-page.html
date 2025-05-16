@@ -9,14 +9,16 @@
 </head>
 <body>
   <header class="header">
-    <div class="logo">EWG Skin Deep</div>
-  </header>
+    <div class="logo">
+      <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
+    </div>
+  </header>  
 
   <main class="main-content">
     <h1 class="fade-in">Your guide to safer<br>personal care products</h1>
     <p class="fade-in delay-1">Backed by science. Designed for you. Learn what’s really in your personal care products.</p>
 
-    <form action="searchingresult.html" method="GET" class="search-container fade-in delay-2">
+    <form action="searching-result.html" method="GET" class="search-container fade-in delay-2">
       <input type="text" name="query" placeholder="Search for a product" class="search-bar">
     </form>    
 
@@ -79,6 +81,8 @@
       const sectionTop = ewgSection.offsetTop;
   
     });
+
+    localStorage.setItem("isCosafeActive", "false");
   </script>
   
 </body>
