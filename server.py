@@ -1,15 +1,15 @@
 # main.py
-from fastapi import FastAPI, HTTPException, status
-from elasticsearch import Elasticsearch
+from fastapi import FastAPI, HTTPException, status, File, UploadFile
+from elasticsearch import Elasticsearch, helpers
 from pydantic import BaseModel
 from typing import List, Dict
-import logging
 import re
-
+import json
+import io
 
 app = FastAPI()
 
-# Cấu hình kết nối với Elasticsearch
+# Cấu hình kết nối với Elasticsearch local
 es = Elasticsearch(
     hosts=["https://localhost:9200/"],  
     basic_auth=("elastic", "OYRcPIeE=EB_YELaA=hT"),
@@ -17,6 +17,8 @@ es = Elasticsearch(
     ssl_show_warn=False 
 )
 
+
+# Kết nối elasticsearch cloud
 # es = Elasticsearch(
 #     "https://934a7c2c20c740988176e6696afaf098.us-central1.gcp.cloud.es.io:443",
 #     api_key="NWN0RTFKWUJHS0dSZFVQVFU0SHc6Z2RDVFRVTHo2c0JPY1Z0ektaZ0lwUQ=="
@@ -26,6 +28,7 @@ es = Elasticsearch(
 if not es.ping():
     raise ValueError("Không thể kết nối tới Elasticsearch!")
 
+
 # Model cho request body
 class SafetyRequest(BaseModel):
     name: str
@@ -33,12 +36,14 @@ class SafetyRequest(BaseModel):
 class NERRequest(BaseModel):
     content: str
 
+
+# Tìm chính xác tên sản phẩm
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
     try:
         # Truy vấn Elasticsearch với term query để tìm chính xác tên sản phẩm
         result = es.search(
-            index="products",
+            index="cs_products_data",
             query={
                 "term": {
                     "name.keyword": request.name  # Tìm chính xác trên trường keyword
@@ -57,10 +62,14 @@ async def safety_check(request: SafetyRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
+
+# Quét văn bản, lọc thành phần
 @app.post("/name-entity-recognition")
 async def ner_and_score(request: NERRequest):
     try:
         ingredients = re.split(r',|\s+và\s+|\s+hoặc\s+', request.content)
+        ingredients = [item.strip() for item in ingredients if item.strip()]
+        # return {"ingredients": ingredients}
     
         if not ingredients:
            return {"ingredients": [], "message": "Không tìm thấy thành phần trong văn bản"}
@@ -70,15 +79,15 @@ async def ner_and_score(request: NERRequest):
         ingredient_list = []
         for ingredient in ingredients:
             result = es.search(
-                index="products",
+                index="cs_products_data",
                 query={
                     "bool": {
                         "filter": [
-                            {"exists": {"field": f"ingredients.{ingredient.upper()}"}}  # Kiểm tra thành phần tồn tại
+                            {"exists": {"field": f"ingredients.{ingredient}"}}  # Kiểm tra thành phần tồn tại
                         ]
                     }
                 },
-                size=1
+                size=10
             )
 
             hits = result.get("hits", {}).get("hits", [])
@@ -98,7 +107,12 @@ async def ner_and_score(request: NERRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
+
+
+
+
 # Chạy server
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
