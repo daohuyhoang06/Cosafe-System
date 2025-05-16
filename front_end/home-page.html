@@ -45,27 +45,22 @@
 
       <div class="product-card fade-in delay-6">
         <img src="assets/images/product1.jpg" alt="Product 1">
-        <div class="brand">ADORABLE BABY</div>
         <div class="title">Adorable Baby Natural Baby Lotion</div>
       </div>
       <div class="product-card fade-in delay-7">
         <img src="assets/images/product2.jpg" alt="Product 2">
-        <div class="brand">Common Heir</div>
         <div class="title">Common Heir 10% Vitamin C Serum</div>
       </div>
       <div class="product-card fade-in delay-8">
         <img src="assets/images/product3.jpg" alt="Product 3">
-        <div class="brand">Better & Better</div>
         <div class="title">Better & Better Fully Charged Toothpaste, Bettermint</div>
       </div>
       <div class="product-card fade-in delay-9">
         <img src="assets/images/product4.jpg" alt="Product 4">
-        <div class="brand">Follain</div>
         <div class="title">Follain Eye Cream Firm + Brighten</div>
       </div>
       <div class="product-card fade-in delay-10">
         <img src="assets/images/product5.jpg" alt="Product 5">
-        <div class="brand">Just the Goods</div>
         <div class="title">Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin
         </div>
       </div>
@@ -85,5 +80,19 @@
     localStorage.setItem("isCosafeActive", "false");
   </script>
   
+  <script>
+    const productCards = document.querySelectorAll('.product-card');
+
+    productCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const title = card.querySelector('.title').textContent.trim();
+        const encodedTitle = encodeURIComponent(title);
+
+        window.location.href = `product-detail.html?query=&title=${encodedTitle}`;
+      });
+    });
+
+  </script>
+
 </body>
 </html>

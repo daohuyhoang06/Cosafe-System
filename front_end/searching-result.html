@@ -36,7 +36,14 @@
 
     <div class="ewg-products">
       <div class="fade-in delay-4">
-        <p>HERE ARE THE PRODUCTS MATCHING YOUR SEARCH:</p>
+        <div class="header-with-sort">
+          <select id="sortOption" class="sort-select">
+            <option value="default">Sort: Default</option>
+            <option value="asc">Sort: A → Z</option>
+            <option value="desc">Sort: Z → A</option>
+          </select>
+          <p class="center-text">HERE ARE THE PRODUCTS MATCHING YOUR SEARCH:</p>
+        </div>
       </div>
       <div class="product-grid"></div> 
     </div>
@@ -82,11 +89,11 @@
   <script>
     //TO DO: Dữ liệu giả lập sản phẩm
     const products = [
-      { img: "assets/images/product1.jpg", brand: "ADORABLE BABY", title: "Adorable Baby Natural Baby Lotion" },
-      { img: "assets/images/product2.jpg", brand: "Common Heir", title: "Common Heir 10% Vitamin C Serum" },
-      { img: "assets/images/product3.jpg", brand: "Better & Better", title: "Better & Better Fully Charged Toothpaste, Bettermint" },
-      { img: "assets/images/product4.jpg", brand: "Follain", title: "Follain Eye Cream Firm + Brighten" },
-      { img: "assets/images/product5.jpg", brand: "Just the Goods", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
+      { img: "assets/images/product1.jpg", title: "Adorable Baby Natural Baby Lotion" },
+      { img: "assets/images/product2.jpg", title: "Common Heir 10% Vitamin C Serum" },
+      { img: "assets/images/product3.jpg", title: "Better & Better Fully Charged Toothpaste, Bettermint" },
+      { img: "assets/images/product4.jpg", title: "Follain Eye Cream Firm + Brighten" },
+      { img: "assets/images/product5.jpg", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
     ];
 
     const itemsPerPage = 3; 
@@ -98,22 +105,33 @@
     const nextBtn = document.getElementById('nextPage');
     const pageInfo = document.getElementById('pageInfo');
 
+    let currentSort = 'default'; 
+
     function renderProducts(page) {
       productGrid.innerHTML = ''; 
 
+      let sortedProducts = [...products];
+
       const start = (page - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      const paginatedItems = products.slice(start, end);
+
+      let paginatedItems = null;
+      if (currentSort === 'asc') {
+        sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
+        paginatedItems = sortedProducts.slice(start, end);
+      } else if (currentSort === 'desc') {
+        sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
+        paginatedItems = sortedProducts.slice(start, end);
+      } else {
+        paginatedItems = products.slice(start, end);
+      } 
 
       paginatedItems.forEach((prod, index) => {
-        const delayClass = `delay-${0 + index}`; 
-
         const card = document.createElement('div');
-        card.classList.add('product-card', 'fade-in', delayClass);
+        card.classList.add('product-card');
         
         card.innerHTML = `
           <img src="${prod.img}" alt="${prod.title}">
-          <div class="brand">${prod.brand}</div>
           <div class="title">${prod.title}</div>
         `;
 
@@ -140,7 +158,7 @@
         // } else if (Điều kiện để tô màu đỏ) {
         //   el.classList.add('red-highlight');
         // }
-      });
+        });
       }
 
       pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
@@ -161,6 +179,13 @@
         renderProducts(currentPage);
       }
     });
+
+    document.getElementById("sortOption").addEventListener("change", function () {
+      currentSort = this.value;
+      currentPage = 1;
+      renderProducts(currentPage);
+    });
+
 
     renderProducts(currentPage);
   </script>

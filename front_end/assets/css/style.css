@@ -178,14 +178,6 @@ header {
   margin: 0 auto 10px;
 }
 
-.product-card .brand {
-  color: green;
-  font-size: 12px;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
 .product-card .title {
   font-size: 14px;
   color: #333;
@@ -395,6 +387,62 @@ header {
 
 
 
+
+
+.header-with-sort {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 16px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  color: #333;
+  gap: 12px; /* khoảng cách giữa dropdown và text */
+}
+
+.sort-select {
+  flex-shrink: 0; /* không co nhỏ dropdown */
+  padding: 6px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1.5px solid #4a90e2;
+  background-color: #f0f6ff;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+}
+
+.sort-select:hover, .sort-select:focus {
+  border-color: #0051a8;
+  background-color: #e4efff;
+  outline: none;
+}
+
+.sort-select option {
+  background-color: white;
+  color: #1a1a1a;
+}
+
+.center-text {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 .ewg-verified-info {
   max-width: 900px;
   margin: 60px auto;
@@ -465,6 +513,147 @@ header {
   margin-bottom: 15px;
   line-height: 1.6;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+section {
+  margin-bottom: 40px;
+}
+
+.product {
+  display: grid;
+  grid-template-columns: 60px 1fr 250px;
+  column-gap: 20px;
+  align-items: start;
+}
+
+.score-image img {
+  width: 125px;
+  height: 125px;
+}
+
+
+
+#productName {
+  font-size: 24px;
+  margin-bottom: 20px;
+  margin-top: 0;
+}
+
+.concerns h2,
+.ingredients h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.concerns p,
+.ingredients p {
+  display: flex;
+  text-align: left;
+  margin: 4px 0;
+}
+
+#concernsList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.concern-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.concern-level {
+  display: flex;
+  align-items: center;
+  width: 200px;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #555;
+}
+
+.concern-level .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.dot.LOW {
+  background-color: green;
+}
+.dot.MODERATE {
+  background-color: orange;
+}
+.dot.HIGH {
+  background-color: red;
+}
+
+.concern-label {
+  font-size: 18px;
+  font-weight: 600p;
+  color: black;
+}
+
+.ingredient-line {
+  text-align: left;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ingredient {
+  border-top: 1px solid #ddd;
+  padding: 10px 0;
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+  font-weight: 600;
+}
+
+.ingredient:hover {
+  background-color: #f9f9f9;
+}
+
+.toggle-link {
+  font-size: 18px;
+  float: right;
+  user-select: none;
+}
+
+.ingredient-link {
+  display: none;
+  font-size: 18px;
+  color: #0073e6;
+  margin-top: 4px;
+  word-break: break-word;
+}
+
+.ingredient.open .ingredient-link {
+  display: block;
+}
+
+
 
 
 

@@ -28,11 +28,48 @@
       </div>
     </div>
 
-
     <div class="hazard-container">
       <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
       <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
     </div>      
+
+    <div class="product">
+      <div class="score-image">
+        <img id="scoreImage" alt="Score">
+      </div>
+      <div class="info">
+        <h1 id="productName"></h1>
+
+        <section class="concerns">
+          <h2>Ingredient concerns</h2>
+          <p>See how this product scores for common concerns.</p>
+          <div id="concernsList" class="concerns-table"></div>
+        </section>
+
+        <section class="ingredients">
+          <h2>Ingredient lists</h2>
+          <p>Activate Cosafe to score ingredients. They are scored based on their formulation and concentration in this product.</p>
+          <p id="ingredientLine" class="ingredient-line"></p>
+        </section>
+
+        <section class="ingredients">
+          <h2>Ingredient details</h2>
+          <p>Click on an ingredient for more information.</p>
+          <div id="ingredientList"></div>
+        </section>
+      </div>
+
+      <div class="image">
+        <img id="productImage" alt="Product">
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+
+
+    
+
+
 
 
 
@@ -55,8 +92,101 @@
       window.isCosafeActive = !window.isCosafeActive;
       localStorage.setItem("isCosafeActive", window.isCosafeActive);
       this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
-      location.reload();
     });
+  </script>
+
+  <script>
+    const data = {
+      name: "Fright Night Fantasy Face & Body Crayon, Black (2019 formulation)",
+      link_image: "https://phorcys-static.ewg.org/cdn-cgi/image/width=560,height=800,quality=60/https://phorcys-static.ewg.org/image/contents/577450/original.",
+      product_url: "https://www.ewg.org/skindeep/products/915899-Fright_Night_Fantasy_Face__Body_Crayon_Black_2019_formulation/",
+      score: 3,
+      ingredient_concerns: {
+        "Cancer": "MODERATE",
+        "Allergies & Immunotoxicity": "LOW",
+        "Developmental and Reproductive Toxicity": "LOW",
+        "Use Restrictions": "HIGH"
+      },
+      ingredients: {
+        "ETHYLHEXYL PALMITATE": {
+          link: "https://www.ewg.org/skindeep/ingredients/702348-ETHYLHEXYL_PALMITATE/"
+        },
+        "OZOKERITE": {
+          link: "https://www.ewg.org/skindeep/ingredients/704381-OZOKERITE/"
+        },
+        "SILICA, AMORPHOUS": {
+          link: "https://www.ewg.org/skindeep/ingredients/705911-SILICA_AMORPHOUS/"
+        },
+        "CYCLOPENTASILOXANE": {
+          link: "https://www.ewg.org/skindeep/ingredients/701741-CYCLOPENTASILOXANE/"
+        },
+        "MICROCRYSTALLINE WAX (CERA MICROCRISTALLINA)": {
+          link: "https://www.ewg.org/skindeep/ingredients/703957-MICROCRYSTALLINE_WAX_CERA_MICROCRISTALLINA/"
+        },
+        "BIS-DIGLYCERYL POLYACYLADIPATE-2": {
+          link: "https://www.ewg.org/skindeep/ingredients/700758-BISDIGLYCERYL_POLYACYLADIPATE2/"
+        },
+        "PHENOXYETHANOL": {
+          link: "https://www.ewg.org/skindeep/ingredients/704811-PHENOXYETHANOL/"
+        },
+        "CI 42090 (FD&C Blue No. 1 or D&C Blue No. 4) Aluminum Lake": {
+          link: "https://www.ewg.org/skindeep/ingredients/702409-CI_42090_FDC_Blue_No_1_or_DC_Blue_No_4_Aluminum_Lake/"
+        },
+        "CI 77499": {
+          link: "https://www.ewg.org/skindeep/ingredients/706410-CI_77499/"
+        },
+        "CI 15850 (D&C Red No. 6 or 7)": {
+          link: "https://www.ewg.org/skindeep/ingredients/717749-CI_15850_DC_Red_No_6_or_7/"
+        },
+        "CI 45410 (D&C Red No. 27 or 28)": {
+          link: "https://www.ewg.org/skindeep/ingredients/701793-CI_45410_DC_Red_No_27_or_28/"
+        },
+        "TITANIUM DIOXIDE": {
+          link: "https://www.ewg.org/skindeep/ingredients/706561-TITANIUM_DIOXIDE/"
+        }
+      }
+    };
+
+    document.getElementById('productName').textContent = data.name;
+    document.getElementById('productImage').src = data.link_image;
+    document.getElementById('scoreImage').src = `assets/images/score-${data.score}.png`;
+
+    const concernsDiv = document.getElementById('concernsList');
+    Object.entries(data.ingredient_concerns).forEach(([label, level]) => {
+      const row = document.createElement('div');
+      row.className = 'concern-row';
+      row.innerHTML = `
+        <div class="concern-level">
+          <span class="dot ${level}"></span>
+          <span class="level-text">${level}</span>
+        </div>
+        <div class="concern-label">${label}</div>
+      `;
+      concernsDiv.appendChild(row);
+    });
+
+
+    const ingredientNames = Object.keys(data.ingredients);
+    document.getElementById('ingredientLine').textContent = ingredientNames.join(', ');
+
+    const ingredientsDiv = document.getElementById('ingredientList');
+    Object.entries(data.ingredients).forEach(([name, { link }]) => {
+      const div = document.createElement('div');
+      div.className = 'ingredient';
+      div.innerHTML = `
+        ${name}
+        <span class="toggle-link">+</span>
+        <div class="ingredient-link"><a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a></div>
+      `;
+      div.querySelector('.toggle-link').addEventListener('click', () => {
+        div.classList.toggle('open');
+      });
+      ingredientsDiv.appendChild(div);
+    });
+
+
+
+
   </script>
 
 
