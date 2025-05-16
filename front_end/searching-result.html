@@ -87,7 +87,9 @@
   </script>
 
   <script>
-    //TO DO: Dữ liệu giả lập sản phẩm
+    //TO DO: Dùng trực tiếp biến query luôn không phải khai báo. Đây là nội dung được nhập ở trên thanh tìm
+    //kiếm. Sau đó, sẽ trả về danh sách các sản phẩm có tên khớp với query. Danh sách này lưu trữ giống như
+    //biến products giả định phía dưới: chỉ cần img - link_image và title - tên sản phẩm.
     const products = [
       { img: "assets/images/product1.jpg", title: "Adorable Baby Natural Baby Lotion" },
       { img: "assets/images/product2.jpg", title: "Common Heir 10% Vitamin C Serum" },
@@ -95,6 +97,8 @@
       { img: "assets/images/product4.jpg", title: "Follain Eye Cream Firm + Brighten" },
       { img: "assets/images/product5.jpg", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
     ];
+
+
 
     const itemsPerPage = 3; 
     let currentPage = 1;
@@ -138,7 +142,6 @@
         card.addEventListener("click", () => {
           const encodedTitle = encodeURIComponent(prod.title);
 
-          //TO DO: Truyền thông tin sản phẩm qua URL để chuyển đến trang chi tiết sản phẩm. Query là thông tin trên thanh tìm kiếm.
           window.location.href = `product-detail.html?query=${query}&title=${encodedTitle}`;
         });
 
@@ -148,16 +151,17 @@
 
       if (window.isCosafeActive) {
         document.querySelectorAll('.title').forEach(el => {
-        //TO DO: tô màu cho tên của mỗi sản phẩm
-        
-        el.classList.remove('green-highlight', 'yellow-highlight', 'red-highlight');
-        // if (Điều kiện để tô màu xanh) {
-        //   el.classList.add('green-highlight');
-        // } else if (Điều kiện để tô màu vàng) {
-             el.classList.add('yellow-highlight');
-        // } else if (Điều kiện để tô màu đỏ) {
-        //   el.classList.add('red-highlight');
-        // }
+          const productName = el.textContent.trim();
+          
+          el.classList.remove('green-highlight', 'yellow-highlight', 'red-highlight');
+          const color = getColorForProduct(productName);
+          if (color == 'green') {
+            el.classList.add('green-highlight');
+          } else if (color == 'yellow') {
+              el.classList.add('yellow-highlight');
+          } else if (color == 'red') {
+              el.classList.add('red-highlight');
+          }
         });
       }
 
@@ -188,6 +192,14 @@
 
 
     renderProducts(currentPage);
+
+    function getColorForProduct(productName) {
+      //TO DO: nhận đầu vào là tên sản phẩm, đầu ra là màu tô cho ingredient đó: red, yellow, green; null nếu không cần tô
+      if (productName.startsWith('C')) return 'red';
+      if (productName.startsWith('F')) return 'yellow';
+      if (productName.startsWith('J')) return 'green';
+      return null; 
+    }
   </script>
 
 

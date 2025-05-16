@@ -620,7 +620,11 @@ section {
   line-height: 1.5;
   font-size: 18px;
   font-weight: 600;
+
+  display: flex;          
+  flex-wrap: wrap;  
 }
+
 
 .ingredient {
   border-top: 1px solid #ddd;
