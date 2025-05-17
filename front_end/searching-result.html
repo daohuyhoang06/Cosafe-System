@@ -14,7 +14,7 @@
   <body>
     <header class="header">
       <div class="logo">
-        <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
+        <a href="home-page.html" class="logo-link">Cosafe System</a>
       </div>
     </header>
 
@@ -82,7 +82,24 @@
     <div class="background-image"></div>
 
     <script>
-      // Khởi tạo trạng thái CoSafe
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get("query");
+      if (query) {
+        document.querySelector(".search-bar").value = query;
+      }
+
+      const scoreLink = document.getElementById("scoreLink");
+      const verifiedLink = document.getElementById("verifiedLink");
+
+      scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(
+        query
+      )}`;
+      verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(
+        query
+      )}`;
+    </script>
+
+    <script>
       const button = document.getElementById("activateBtn");
       window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true";
       button.textContent = window.isCosafeActive
@@ -97,113 +114,105 @@
           : "Activate Cosafe";
         renderProducts(currentPage);
       });
+    </script>
 
-      // Xử lý query từ URL
-      const urlParams = new URLSearchParams(window.location.search);
-      let query = urlParams.get("query") || "";
-      if (query) {
-        document.querySelector(".search-bar").value = query;
-      }
-
-      // Cập nhật link với query
-      const scoreLink = document.getElementById("scoreLink");
-      const verifiedLink = document.getElementById("verifiedLink");
-      scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(
-        query
-      )}`;
-      verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(
-        query
-      )}`;
-
-      // Xử lý tìm kiếm và hiển thị sản phẩm
-      const itemsPerPage = 3;
-      let currentPage = 1;
+    <script>
+      //TO DO: Dùng trực tiếp biến query luôn không phải khai báo. Đây là nội dung được nhập ở trên thanh tìm
+      //kiếm. Sau đó, sẽ trả về danh sách các sản phẩm có tên khớp với query. Danh sách này lưu trữ giống như
+      //biến products giả định phía dưới: chỉ cần img - link_image và title - tên sản phẩm.
+      // const products = [
+      //   { img: "assets/images/product1.jpg", title: "Adorable Baby Natural Baby Lotion" },
+      //   { img: "assets/images/product2.jpg", title: "Common Heir 10% Vitamin C Serum" },
+      //   { img: "assets/images/product3.jpg", title: "Better & Better Fully Charged Toothpaste, Bettermint" },
+      //   { img: "assets/images/product4.jpg", title: "Follain Eye Cream Firm + Brighten" },
+      //   { img: "assets/images/product5.jpg", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
+      //   { img: "assets/images/product6.jpg", title: "Lowen's Natural Skin Care Butter Balm" },
+      //   { img: "assets/images/product7.jpg", title: "Sally B's Skin Yummies Sugar Scrub, Lavender (old formulation)" },
+      //   { img: "assets/images/product8.jpg", title: "Sally B's Skin Yummies B Smudged, Smokey Charcoal (2022 formulation)" },
+      //   { img: "assets/images/product9.jpg", title: "isoi Sensitive Skin Essence Hand Cream" },
+      //   { img: "assets/images/product10.png", title: "Akar Skin Soothe Cleansing Milk" },
+      //   { img: "assets/images/product11.jpg", title: "Superbloom Reviving Skin Soak Mist" },
+      //   { img: "assets/images/product12.jpg", title: "DIME Beauty Super Skin Toner" },
+      //   { img: "assets/images/product13.jpg", title: "Lowen's Natural Skin Care Shampoo is Betta!" },
+      //   { img: "assets/images/product14.jpg", title: "Lowen's Natural Skin Care Bum Balm Blues Diaper Balm" },
+      //   { img: "assets/images/product15.jpg", title: "Sally B's Skin Yummies EcoBody, Lavender" },
+      // ];
       let products = [];
       let totalPages = 1;
+      const itemsPerPage = 10;
+      let currentPage = 1;
+      let currentSort = "default";
+
       const productGrid = document.querySelector(".product-grid");
       const prevBtn = document.getElementById("prevPage");
       const nextBtn = document.getElementById("nextPage");
       const pageInfo = document.getElementById("pageInfo");
-      let currentSort = "default";
 
-      // Hàm tìm kiếm sản phẩm từ API
-      async function fetchProducts(searchQuery) {
+      const hazardTitle = document.querySelector(".hazard-title");
+
+      async function fetchProducts(query) {
+        console.log("Gọi fetchProducts với query:", query);
         try {
-          const response = await fetch("http://localhost:8000/safety", {
+          const response = await fetch("http://127.0.0.1:8000/safety", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: searchQuery }),
+            body: JSON.stringify({ name: query }),
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
           }
 
           const data = await response.json();
+          console.log("Dữ liệu trả về từ API:", data);
+
+          // Xử lý trường hợp "Không tìm thấy sản phẩm"
           if (data.message === "Không tìm thấy sản phẩm") {
-            showNotification("No products found for your search.");
-            return [];
+            productGrid.innerHTML =
+              '<p class="no-results">Không tìm thấy sản phẩm phù hợp với tìm kiếm của bạn.</p>';
+            products = [];
+            updatePagination();
+            return;
           }
 
-          return data.products.map((product) => ({
-            img: product.image || "assets/images/default.jpg",
-            title: product.name,
-            score: product.score,
-          }));
+          // Chuyển đổi dữ liệu API thành định dạng hiển thị
+          // Sản phẩm đơn lẻ được chuyển thành mảng chứa 1 sản phẩm
+          products = [
+            {
+              title: data.name || query,
+              score: data.score || 0,
+              img: data.link_image || `assets/images/product-placeholder.jpg`, // Ảnh mặc định
+            },
+          ];
+
+          updatePagination();
+          renderProducts(currentPage);
+
+          // Cập nhật tiêu đề hiển thị
+          if (data.name) {
+            hazardTitle.textContent = data.name;
+          }
         } catch (error) {
           console.error("Error fetching products:", error);
-          showNotification(
-            "An error occurred while searching. Please try again."
-          );
-          return [];
+          productGrid.innerHTML =
+            '<p class="error-message">Lỗi khi tải dữ liệu sản phẩm. Vui lòng thử lại.</p>';
+          products = [];
+          updatePagination();
         }
       }
 
-      // Hàm lấy màu sắc cho sản phẩm
-      async function getColorForProduct(productName) {
-        try {
-          const response = await fetch("http://localhost:8000/safety", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: productName }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
-          }
-
-          const data = await response.json();
-          if (data.message === "Không tìm thấy sản phẩm") {
-            return null;
-          }
-
-          const score = data.products[0]?.score || 0;
-          return score <= 3 ? "green" : score <= 6 ? "yellow" : "red";
-        } catch (error) {
-          console.error("Error getting color for product:", error);
-          return null;
-        }
+      function updatePagination() {
+        totalPages = Math.ceil(products.length / itemsPerPage) || 1;
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages || products.length === 0;
       }
 
-      // Hàm hiển thị thông báo
-      function showNotification(message) {
-        const notification = document.createElement("div");
-        notification.className = "notification";
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
-      }
-
-      // Hàm hiển thị sản phẩm
-      async function renderProducts(page) {
+      function renderProducts(page) {
         productGrid.innerHTML = "";
 
-        if (!products.length && query) {
-          products = await fetchProducts(query);
-          totalPages = Math.ceil(products.length / itemsPerPage);
-        }
-
         let sortedProducts = [...products];
+
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
 
@@ -215,48 +224,53 @@
           sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
           paginatedItems = sortedProducts.slice(start, end);
         } else {
-          paginatedItems = sortedProducts.slice(start, end);
+          paginatedItems = products.slice(start, end);
         }
 
-        paginatedItems.forEach((prod) => {
+        paginatedItems.forEach((prod, index) => {
           const card = document.createElement("div");
           card.classList.add("product-card");
+
           card.innerHTML = `
-            <img src="${prod.img}" alt="${prod.title}">
-            <div class="title">${prod.title}</div>
-          `;
+          <img src="${prod.img}" alt="${prod.title}">
+          <div class="title">${prod.title}</div>
+        `;
+
           card.addEventListener("click", () => {
             const encodedTitle = encodeURIComponent(prod.title);
-            window.location.href = `product-detail.html?query=${encodeURIComponent(
-              query
-            )}&title=${encodedTitle}`;
+
+            window.location.href = `product-detail.html?query=${query}&title=${encodedTitle}`;
           });
+
           productGrid.appendChild(card);
         });
 
         if (window.isCosafeActive) {
-          const titleElements = document.querySelectorAll(".title");
-          for (const el of titleElements) {
+          document.querySelectorAll(".title").forEach((el) => {
             const productName = el.textContent.trim();
+
             el.classList.remove(
               "green-highlight",
               "yellow-highlight",
               "red-highlight"
             );
-            const color = await getColorForProduct(productName);
-            if (color) {
-              el.classList.add(`${color}-highlight`);
+            const color = getColorForProduct(productName);
+            if (color == "green") {
+              el.classList.add("green-highlight");
+            } else if (color == "yellow") {
+              el.classList.add("yellow-highlight");
+            } else if (color == "red") {
+              el.classList.add("red-highlight");
             }
-          }
+          });
         }
 
         pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
         prevBtn.disabled = currentPage === 1;
-        nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+        nextBtn.disabled = currentPage === totalPages;
       }
 
-      // Sự kiện phân trang
-      prevNbr.addEventListener("click", () => {
+      prevBtn.addEventListener("click", () => {
         if (currentPage > 1) {
           currentPage--;
           renderProducts(currentPage);
@@ -270,7 +284,6 @@
         }
       });
 
-      // Sự kiện sắp xếp
       document
         .getElementById("sortOption")
         .addEventListener("change", function () {
@@ -279,30 +292,26 @@
           renderProducts(currentPage);
         });
 
-      // Sự kiện tìm kiếm
-      document
-        .querySelector(".search-bar")
-        .addEventListener("input", async (e) => {
-          query = e.target.value.trim();
-          currentPage = 1;
-          products = [];
-          await renderProducts(currentPage);
-          // Cập nhật URL mà không reload trang
-          history.pushState(
-            {},
-            "",
-            `searching-result.html?query=${encodeURIComponent(query)}`
-          );
-          scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(
-            query
-          )}`;
-          verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(
-            query
-          )}`;
-        });
-
-      // Khởi động
       renderProducts(currentPage);
+
+      function getColorForProduct(productName) {
+        //TO DO: nhận đầu vào là tên sản phẩm, đầu ra là màu tô cho sản phẩm đó: red, yellow, green; null nếu không cần tô
+        if (productName.score >= 0 && productName.score <= 2) return "green";
+        if (productName.score >= 3 && productName.score <= 6) return "yellow";
+        if (productName.score >= 7 && productName.score <= 10) return "red";
+        return "null";
+      }
+
+      // Gọi API và render khi trang được load
+      (async () => {
+        if (query) {
+          await fetchProducts(query);
+        } else {
+          productGrid.innerHTML =
+            '<p class="no-query">Vui lòng nhập từ khóa tìm kiếm để xem kết quả.</p>';
+          console.warn("Không có query trong URL, không fetch được sản phẩm.");
+        }
+      })();
     </script>
   </body>
 </html>

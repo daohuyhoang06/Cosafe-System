@@ -1,5 +1,6 @@
 
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from elasticsearch import Elasticsearch, helpers
 from pydantic import BaseModel
 from typing import List, Dict
@@ -27,6 +28,14 @@ if not es.ping():
     raise ValueError("Không thể kết nối tới Elasticsearch!")
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Model cho request body
 class SafetyRequest(BaseModel):
     name: str
@@ -36,6 +45,7 @@ class NERRequest(BaseModel):
 
 
 # Tìm chính xác tên sản phẩm
+# Trả về tên sản phẩm, điểm tương tự và link ảnh
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
     try:
@@ -55,7 +65,7 @@ async def safety_check(request: SafetyRequest):
             return {"message": "Không tìm thấy sản phẩm"}
         else:
             hit = result["hits"]["hits"][0]["_source"]
-            return {"name": hit["name"], "score": hit["score"]}
+            return {"name": hit["name"], "score": hit["score"], "link_image": hit["link_image"]}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
@@ -102,6 +112,32 @@ async def ner_and_score(request: NERRequest):
             return {"ingredients": [], "message": "Không tìm thấy thành phần"}
 
         return {"ingredients": ingredient_list}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
+
+# Lấy toàn bộ thông tin sản phẩm: tên sản phẩm, điểm tương tự, link ảnh, thành phần
+@app.post("/get-all")
+async def get_all(request: SafetyRequest):
+    try:
+        # Truy vấn Elasticsearch với term query để tìm chính xác tên sản phẩm
+        result = es.search(
+            index="cs_products_data",
+            query={
+                "term": {
+                    "name.keyword": request.name  # Tìm chính xác trên trường keyword
+                }
+            },
+            size=1  # Lấy 1 kết quả
+        )
+
+        # Kiểm tra kết quả
+        if not result["hits"]["hits"]:
+            return {"message": "Không tìm thấy sản phẩm"}
+        else:
+            hit = result["hits"]["hits"][0]["_source"]
+            return hit
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
