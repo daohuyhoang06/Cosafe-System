@@ -10,7 +10,7 @@
 <body>
   <header class="header">
     <div class="logo">
-      <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
+      <a href="home-page.html" class="logo-link">Cosafe System</a>
     </div>
   </header>  
 
@@ -96,11 +96,21 @@
       { img: "assets/images/product3.jpg", title: "Better & Better Fully Charged Toothpaste, Bettermint" },
       { img: "assets/images/product4.jpg", title: "Follain Eye Cream Firm + Brighten" },
       { img: "assets/images/product5.jpg", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
+      { img: "assets/images/product6.jpg", title: "Lowen's Natural Skin Care Butter Balm" },
+      { img: "assets/images/product7.jpg", title: "Sally B's Skin Yummies Sugar Scrub, Lavender (old formulation)" },
+      { img: "assets/images/product8.jpg", title: "Sally B's Skin Yummies B Smudged, Smokey Charcoal (2022 formulation)" },
+      { img: "assets/images/product9.jpg", title: "isoi Sensitive Skin Essence Hand Cream" },
+      { img: "assets/images/product10.png", title: "Akar Skin Soothe Cleansing Milk" },
+      { img: "assets/images/product11.jpg", title: "Superbloom Reviving Skin Soak Mist" },
+      { img: "assets/images/product12.jpg", title: "DIME Beauty Super Skin Toner" },
+      { img: "assets/images/product13.jpg", title: "Lowen's Natural Skin Care Shampoo is Betta!" },
+      { img: "assets/images/product14.jpg", title: "Lowen's Natural Skin Care Bum Balm Blues Diaper Balm" },
+      { img: "assets/images/product15.jpg", title: "Sally B's Skin Yummies EcoBody, Lavender" },
     ];
 
 
 
-    const itemsPerPage = 3; 
+    const itemsPerPage = 10; 
     let currentPage = 1;
     const totalPages = Math.ceil(products.length / itemsPerPage);
 
@@ -198,7 +208,7 @@
       if (productName.startsWith('C')) return 'red';
       if (productName.startsWith('F')) return 'yellow';
       if (productName.startsWith('J')) return 'green';
-      return null; 
+      return 'green'; 
     }
   </script>
 
