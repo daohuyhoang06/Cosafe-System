@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWG Skin Deep</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
+    </div>
+  </header>  
+
+  <div class="main-content">
+    <form action="searching-result.html" method="GET" class="search-container fade-in">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar">
+    </form>  
+
+    <div class="hazard-header fade-in delay-1">
+      <div class="hazard-title"> </div>
+      <div class="hazard-links">
+        <a href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+        <span class="divider">|</span>
+        <a href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
+      </div>
+    </div>
+
+    <div class="hazard-container">
+      <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
+      <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
+    </div>      
+
+    <div class="product">
+      <div class="score-image">
+        <img id="scoreImage" alt="Score">
+      </div>
+      <div class="info">
+        <h1 id="productName"></h1>
+
+        <section class="concerns">
+          <h2>Ingredient concerns</h2>
+          <p>See how this product scores for common concerns.</p>
+          <div id="concernsList" class="concerns-table"></div>
+        </section>
+
+        <section class="ingredients">
+          <h2>Ingredient lists</h2>
+          <p>Activate Cosafe to score ingredients. They are scored based on their formulation and concentration in this product.</p>
+          <p id="ingredientLine" class="ingredient-line"></p>
+        </section>
+
+        <section class="ingredients">
+          <h2>Ingredient details</h2>
+          <p>Click on an ingredient for more information.</p>
+          <div id="ingredientList"></div>
+        </section>
+      </div>
+
+      <div class="image">
+        <img id="productImage" alt="Product">
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+
+
+    
+
+
+
+
+
+  <div class="background-image"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('query');
+    const title = urlParams.get('title');
+    if (query) {
+      document.querySelector('.search-bar').value = query;
+    }
+  </script>
+
+  <script>
+    const button = document.getElementById("activateBtn");
+    window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true"
+    button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
+
+    button.addEventListener("click", function () {
+      window.isCosafeActive = !window.isCosafeActive;
+      localStorage.setItem("isCosafeActive", window.isCosafeActive);
+      this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
+
+      if (window.isCosafeActive) {
+        renderIngredientLine();
+      } else {
+        ingredientLineElement.textContent = window.originalIngredientLineText;
+      }
+    });
+  </script>
+
+  <script>
+    //TO DO: Dùng trực tiếp biến title luôn không phải khai báo. Đây là tên sản phẩm chính xác không sai một kí tự nào.
+    //Sau đó, sẽ trả về thông tin chi tiết của sản phẩm duy nhất có tên khớp với title dưới dạng JSON như dưới đây.
+    //Chỉ cần thay dữ liệu của biến data thành dữ liệu của sản phẩm đó để hiển thị.
+    const data = {
+      name: "Fright Night Fantasy Face & Body Crayon, Black (2019 formulation)",
+      link_image: "https://phorcys-static.ewg.org/cdn-cgi/image/width=560,height=800,quality=60/https://phorcys-static.ewg.org/image/contents/577450/original.",
+      product_url: "https://www.ewg.org/skindeep/products/915899-Fright_Night_Fantasy_Face__Body_Crayon_Black_2019_formulation/",
+      score: 3,
+      ingredient_concerns: {
+        "Cancer": "MODERATE",
+        "Allergies & Immunotoxicity": "LOW",
+        "Developmental and Reproductive Toxicity": "LOW",
+        "Use Restrictions": "HIGH"
+      },
+      ingredients: {
+        "ETHYLHEXYL PALMITATE": {
+          link: "https://www.ewg.org/skindeep/ingredients/702348-ETHYLHEXYL_PALMITATE/"
+        },
+        "OZOKERITE": {
+          link: "https://www.ewg.org/skindeep/ingredients/704381-OZOKERITE/"
+        },
+        "SILICA, AMORPHOUS": {
+          link: "https://www.ewg.org/skindeep/ingredients/705911-SILICA_AMORPHOUS/"
+        },
+        "CYCLOPENTASILOXANE": {
+          link: "https://www.ewg.org/skindeep/ingredients/701741-CYCLOPENTASILOXANE/"
+        },
+        "MICROCRYSTALLINE WAX (CERA MICROCRISTALLINA)": {
+          link: "https://www.ewg.org/skindeep/ingredients/703957-MICROCRYSTALLINE_WAX_CERA_MICROCRISTALLINA/"
+        },
+        "BIS-DIGLYCERYL POLYACYLADIPATE-2": {
+          link: "https://www.ewg.org/skindeep/ingredients/700758-BISDIGLYCERYL_POLYACYLADIPATE2/"
+        },
+        "PHENOXYETHANOL": {
+          link: "https://www.ewg.org/skindeep/ingredients/704811-PHENOXYETHANOL/"
+        },
+        "CI 42090 (FD&C Blue No. 1 or D&C Blue No. 4) Aluminum Lake": {
+          link: "https://www.ewg.org/skindeep/ingredients/702409-CI_42090_FDC_Blue_No_1_or_DC_Blue_No_4_Aluminum_Lake/"
+        },
+        "CI 77499": {
+          link: "https://www.ewg.org/skindeep/ingredients/706410-CI_77499/"
+        },
+        "CI 15850 (D&C Red No. 6 or 7)": {
+          link: "https://www.ewg.org/skindeep/ingredients/717749-CI_15850_DC_Red_No_6_or_7/"
+        },
+        "CI 45410 (D&C Red No. 27 or 28)": {
+          link: "https://www.ewg.org/skindeep/ingredients/701793-CI_45410_DC_Red_No_27_or_28/"
+        },
+        "TITANIUM DIOXIDE": {
+          link: "https://www.ewg.org/skindeep/ingredients/706561-TITANIUM_DIOXIDE/"
+        }
+      }
+    };
+
+    document.getElementById('productName').textContent = data.name;
+    document.getElementById('productImage').src = data.link_image;
+    document.getElementById('scoreImage').src = `assets/images/score-${data.score}.png`;
+
+    const concernsDiv = document.getElementById('concernsList');
+    Object.entries(data.ingredient_concerns).forEach(([label, level]) => {
+      const row = document.createElement('div');
+      row.className = 'concern-row';
+      row.innerHTML = `
+        <div class="concern-level">
+          <span class="dot ${level}"></span>
+          <span class="level-text">${level}</span>
+        </div>
+        <div class="concern-label">${label}</div>
+      `;
+      concernsDiv.appendChild(row);
+    });
+
+
+    const ingredientLineElement = document.getElementById('ingredientLine');
+    ingredientLineElement.textContent = Object.keys(data.ingredients).join(',\u00A0');
+
+    window.originalIngredientLineText = ingredientLineElement.textContent;
+    if (localStorage.getItem("isCosafeActive") === "true") {
+      renderIngredientLine();
+    }
+
+
+    const ingredientsDiv = document.getElementById('ingredientList');
+    Object.entries(data.ingredients).forEach(([name, { link }]) => {
+      const div = document.createElement('div');
+      div.className = 'ingredient';
+      div.innerHTML = `
+        ${name}
+        <span class="toggle-link">+</span>
+        <div class="ingredient-link"><a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a></div>
+      `;
+      div.querySelector('.toggle-link').addEventListener('click', () => {
+        div.classList.toggle('open');
+      });
+      ingredientsDiv.appendChild(div);
+    });
+
+    function renderIngredientLine() {
+      const container = document.getElementById('ingredientLine');
+      const ingredients = window.originalIngredientLineText.split(',').map(i => i.trim());
+
+      container.innerHTML = ''; 
+
+      ingredients.forEach((ingredient, index) => {
+        const words = ingredient.split(' '); 
+
+        words.forEach((word, wordIndex) => {
+          const span = document.createElement('span');
+          span.textContent = wordIndex < words.length - 1 ? word + '\u00A0' : word;
+
+          const color = getColorForIngredient(ingredient);
+          if (color != null) {
+            span.style.backgroundColor = color;
+          }
+
+          span.style.display = 'inline-block';
+          
+          container.appendChild(span);
+        });
+
+        if (index < ingredients.length - 1) {
+          container.appendChild(document.createTextNode(',\u00A0'));
+        }
+      });
+    }
+
+    function getColorForIngredient(ingredient) {
+      //TO DO: nhận đầu vào là ingredient, đầu ra là màu tô cho ingredient đó: red, yellow, green; null nếu không cần tô
+      if (ingredient.startsWith('C')) return 'red';
+      if (ingredient.startsWith('E')) return 'yellow';
+      if (ingredient.startsWith('T')) return 'green';
+      return null; 
+    }
+  </script>
+
+  
+
+
+  
+</body>
+</html>

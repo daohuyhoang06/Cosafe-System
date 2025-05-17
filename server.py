@@ -87,7 +87,7 @@ async def ner_and_score(request: NERRequest):
                         ]
                     }
                 },
-                size=10
+                size=1
             )
 
             hits = result.get("hits", {}).get("hits", [])

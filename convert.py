@@ -1,3 +1,6 @@
+# Chuyển đổi file JSON thành file NDJSON
+
+
 import json
 
 # Mở file JSON gốc (giả sử đang ở dạng list [])

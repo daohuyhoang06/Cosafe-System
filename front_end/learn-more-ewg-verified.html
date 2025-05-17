@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWG Skin Deep</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="home-page.html" class="logo-link">EWG Skin Deep</a>
+    </div>
+  </header>  
+
+  <div class="main-content">
+    <form action="searching-result.html" method="GET" class="search-container fade-in">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar">
+    </form>  
+
+    <div class="hazard-header fade-in delay-1">
+      <div class="hazard-title"> </div>
+      <div class="hazard-links">
+        <a id="scoreLink" href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+        <span class="divider">|</span>
+        <a id="verifiedLink" href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
+      </div>
+    </div>
+
+    <div class="ewg-verified-info fade-in delay-2">
+        <h2>What does the EWG VERIFIED<sup>®</sup> mark mean?</h2>
+
+        <div class="verified-flex">
+            <div class="verified-description">
+            <p>
+                The EWG VERIFIED<sup>®</sup> mark on a product indicates that the product meets EWG’s strictest standards for transparency and health.
+            </p>
+
+            <ul class="checklist">
+                <li>
+                <strong>✔ Avoids EWG’s Ingredients of concern</strong><br>
+                EWG VERIFIED products cannot contain any ingredients on EWG’s “Unacceptable” list, which includes ingredients with health, ecotoxicity and/or contamination concerns.
+                </li>
+                <li>
+                <strong>✔ Full transparency</strong><br>
+                EWG VERIFIED products must meet EWG’s standards for ingredient disclosure on the label; products with the VERIFIED mark are made by manufacturers that have been fully transparent with EWG about that product’s ingredients, including fragrance ingredients.
+                </li>
+                <li>
+                <strong>✔ Good manufacturing practices</strong><br>
+                EWG VERIFIED product manufacturers must develop and follow current good manufacturing practices to further ensure the safety of their products.
+                </li>
+            </ul>
+            </div>
+        </div>
+
+        <img src="assets/images/lab-equipment.jpg" alt="Lab Equipment" class="lab-image">
+
+        <div class="ingredient-concerns">
+            <h2>Ingredient Concerns</h2>
+
+            <p><strong>Cancer:</strong> Ingredients linked to cancer in government, industry or academic studies or assessments.</p>
+
+            <p><strong>Developmental and reproductive toxicity:</strong> Ingredients linked to developmental and reproductive toxicity, a broad class of health effects that range from infertility and reproductive organ cancers to birth defects and developmental delays in children.</p>
+
+            <p><strong>Allergies and immunotoxicity:</strong> Ingredients linked to harm to the immune system, a class of health problems that manifest as allergic reactions or an impaired capacity to fight disease and repair damaged tissue in the body.</p>
+
+            <p><strong>Use restrictions:</strong> Ingredients restricted or prohibited for use in cosmetics, according to industry safety guidelines, government requirements or guidance from the U.S., EU, Japan or Canada.</p>
+
+            <p><strong>Endocrine disruption:</strong> Ingredients may affect the proper functioning of the body's hormone system.</p>
+
+            <p><strong>Neurotoxicity:</strong> Ingredients linked to harm to the brain and nervous system, a class of health problems that can range from subtle developmental delays to chronic nerve degeneration diseases.</p>
+
+            <p><strong>Organ system toxicity:</strong> Ingredients linked to toxicity of one or more biological systems in the body, for instance, cardiovascular, stomach and digestive track, or respiratory system, through laboratory studies or studies of people.</p>
+
+            <p><strong>Biochemical or cellular level changes:</strong> Ingredients affect the body at a cellular or biochemical level, potentially leading to larger but poorly understood health implications.</p>
+
+            <p><strong>Persistence and bioaccumulation:</strong> Ingredients resist normal breakdown in the environment; build up in wildlife, the food chain, and people; and linger in the body for years or even decades after exposure.</p>
+
+            <p><strong>Ecotoxicity:</strong> Ingredients linked to toxicity of wildlife that may include fish, plants or other wild organisms.</p>
+
+            <p><strong>Irritation:</strong> Ingredients linked to irritation of the skin, eyes or lungs.</p>
+
+            <p><strong>Occupational hazards:</strong> Ingredients linked to hazards for workers exposed on the job, including immediate dangers from chemical handling, or longer-term health effects from routine occupational exposures.</p>
+
+            <p><strong>Enhanced skin absorption:</strong> Ingredients may more readily absorb through the skin due to properties like penetration-enhancing abilities or small particle size, or by virtue of where they are applied on the body (on infant skin, or on lips or damaged skin).</p>
+
+            <p><strong>Contamination concerns:</strong> Ingredients may be contaminated with toxic impurities, many of which are linked to cancer, according to government and cosmetic industry ingredient safety assessments or peer-reviewed studies.</p>
+        </div>
+
+    </div>
+
+
+
+
+  <div class="background-image"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('query');
+    if (query) {
+      document.querySelector('.search-bar').value = query;
+    }
+
+    const scoreLink = document.getElementById('scoreLink');
+    const verifiedLink = document.getElementById('verifiedLink');
+
+    scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(query)}`;
+    verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(query)}`;
+  </script>  
+</body>
+</html>
