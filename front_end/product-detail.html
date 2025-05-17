@@ -136,59 +136,88 @@
           return null;
         }
       }
+
       async function renderProductDetails() {
         if (!title) {
           document.getElementById("productName").textContent = "No Product Selected";
+          document.querySelector('.product').innerHTML = '<p class="error-message">No product selected. Please choose a product.</p>';
           return;
         }
 
         // Fetch product data
         const data = await fetchProductData(title);
 
-        document.getElementById('productName').textContent = data.name;
-        document.getElementById('productImage').src = data.link_image;
-        document.getElementById('scoreImage').src = `assets/images/score-${data.score}.png`;
+        if (!data) {
+          document.getElementById("productName").textContent = "Product Not Found";
+          document.querySelector('.product').innerHTML = '<p class="error-message">Product not found. Please try another product.</p>';
+          return;
+        }
 
+        // Hiển thị tên sản phẩm
+        document.getElementById('productName').textContent = data.name || 'Unknown Product';
+
+        // Hiển thị ảnh sản phẩm (nếu có, nếu không dùng placeholder)
+        document.getElementById('productImage').src = data.link_image || 'assets/images/product-placeholder.jpg';
+
+        // Hiển thị ảnh điểm số (dựa trên score, nếu có)
+        document.getElementById('scoreImage').src = data.score !== undefined
+          ? `assets/images/score-${Math.round(data.score * 10)}.png`
+          : 'assets/images/score-na.png';
+
+        // Hiển thị mối quan ngại (ingredient_concerns) - giả định tạm thời không có dữ liệu này
         const concernsDiv = document.getElementById('concernsList');
-        Object.entries(data.ingredient_concerns).forEach(([label, level]) => {
-          const row = document.createElement('div');
-          row.className = 'concern-row';
-          row.innerHTML = `
-        <div class="concern-level">
-          <span class="dot ${level}"></span>
-          <span class="level-text">${level}</span>
-        </div>
-        <div class="concern-label">${label}</div>
-      `;
-          concernsDiv.appendChild(row);
-        });
+        concernsDiv.innerHTML = ''; // Xóa nội dung cũ
+        if (data.ingredient_concerns) {
+          Object.entries(data.ingredient_concerns).forEach(([label, level]) => {
+            const row = document.createElement('div');
+            row.className = 'concern-row';
+            row.innerHTML = `
+                <div class="concern-level">
+                    <span class="dot ${level}"></span>
+                    <span class="level-text">${level}</span>
+                </div>
+                <div class="concern-label">${label}</div>
+            `;
+            concernsDiv.appendChild(row);
+          });
+        } else {
+          concernsDiv.innerHTML = '<p>No ingredient concerns available.</p>';
+        }
 
-
+        // Hiển thị danh sách thành phần trong ingredientLine
         const ingredientLineElement = document.getElementById('ingredientLine');
-        ingredientLineElement.textContent = Object.keys(data.ingredients).join(',\u00A0');
+        ingredientLineElement.textContent = data.ingredients
+          ? Object.keys(data.ingredients).join(',\u00A0')
+          : 'No ingredients available';
 
         window.originalIngredientLineText = ingredientLineElement.textContent;
         if (localStorage.getItem("isCosafeActive") === "true") {
-          renderIngredientLine();
+          renderIngredientLine(data);
         }
 
-
+        // Hiển thị chi tiết thành phần trong ingredientList
         const ingredientsDiv = document.getElementById('ingredientList');
-        Object.entries(data.ingredients).forEach(([name, { link }]) => {
-          const div = document.createElement('div');
-          div.className = 'ingredient';
-          div.innerHTML = `
-        ${name}
-        <span class="toggle-link">+</span>
-        <div class="ingredient-link"><a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a></div>
-      `;
-          div.querySelector('.toggle-link').addEventListener('click', () => {
-            div.classList.toggle('open');
+        ingredientsDiv.innerHTML = ''; // Xóa nội dung cũ
+        if (data.ingredients) {
+          Object.entries(data.ingredients).forEach(([name, info]) => {
+            const div = document.createElement('div');
+            div.className = 'ingredient';
+            div.innerHTML = `
+                ${name}
+                <span class="score">Score: ${info.score !== undefined ? info.score : 'N/A'}</span>
+                <span class="toggle-link">+</span>
+                <div class="ingredient-link">No additional information available.</div>
+            `;
+            div.querySelector('.toggle-link').addEventListener('click', () => {
+              div.classList.toggle('open');
+            });
+            ingredientsDiv.appendChild(div);
           });
-          ingredientsDiv.appendChild(div);
-        });
+        } else {
+          ingredientsDiv.innerHTML = '<p>No ingredient details available.</p>';
+        }
 
-        function renderIngredientLine() {
+        function renderIngredientLine(data) {
           const container = document.getElementById('ingredientLine');
           const ingredients = window.originalIngredientLineText.split(',').map(i => i.trim());
 
@@ -201,13 +230,12 @@
               const span = document.createElement('span');
               span.textContent = wordIndex < words.length - 1 ? word + '\u00A0' : word;
 
-              const color = getColorForIngredient(ingredient);
-              if (color != null) {
+              const color = getColorForIngredient(ingredient, data);
+              if (color) {
                 span.style.backgroundColor = color;
               }
 
               span.style.display = 'inline-block';
-
               container.appendChild(span);
             });
 
@@ -217,13 +245,29 @@
           });
         }
 
-        function getColorForIngredient(ingredient) {
-          //TO DO: nhận đầu vào là ingredient, đầu ra là màu tô cho ingredient đó: red, yellow, green; null nếu không cần tô
-          if (ingredient.startsWith('C')) return 'red';
-          if (ingredient.startsWith('E')) return 'yellow';
-          if (ingredient.startsWith('T')) return 'green';
-          return null;
+        function getColorForIngredient(ingredient, data) {
+          // Tô màu dựa trên score của thành phần
+          if (!data.ingredients || !data.ingredients[ingredient]) {
+            return null;
+          }
+
+          const score = data.ingredients[ingredient].score;
+          if (score === undefined) {
+            return null;
+          }
+
+          // Quy tắc tô màu: 
+          // - Score < 0.4: đỏ (nguy hiểm)
+          // - Score 0.4 - 0.7: vàng (trung bình)
+          // - Score > 0.7: xanh (an toàn)
+          if (score < 0.4) return 'red';
+          if (score <= 0.7) return 'yellow';
+          return 'green';
         }
+      }
+
+      // Gọi renderProductDetails khi trang tải
+      document.addEventListener('DOMContentLoaded', renderProductDetails);
     </script>
 
 
