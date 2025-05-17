@@ -1,4 +1,4 @@
-# main.py
+
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from elasticsearch import Elasticsearch, helpers
 from pydantic import BaseModel
@@ -9,7 +9,7 @@ import io
 
 app = FastAPI()
 
-# Cấu hình kết nối với Elasticsearch local
+# Cấu hình kết nối với Elasticsearch
 es = Elasticsearch(
     hosts=["https://localhost:9200/"],  
     basic_auth=("elastic", "OYRcPIeE=EB_YELaA=hT"),
@@ -17,8 +17,6 @@ es = Elasticsearch(
     ssl_show_warn=False 
 )
 
-
-# Kết nối elasticsearch cloud
 # es = Elasticsearch(
 #     "https://934a7c2c20c740988176e6696afaf098.us-central1.gcp.cloud.es.io:443",
 #     api_key="NWN0RTFKWUJHS0dSZFVQVFU0SHc6Z2RDVFRVTHo2c0JPY1Z0ektaZ0lwUQ=="
@@ -106,9 +104,6 @@ async def ner_and_score(request: NERRequest):
         return {"ingredients": ingredient_list}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
-
-
-
 
 
 # Chạy server
