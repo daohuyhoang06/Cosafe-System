@@ -109,24 +109,31 @@
       //TO DO: Dùng trực tiếp biến title luôn không phải khai báo. Đây là tên sản phẩm chính xác không sai một kí tự nào.
       //Sau đó, sẽ trả về thông tin chi tiết của sản phẩm duy nhất có tên khớp với title dưới dạng JSON như dưới đây.
       //Chỉ cần thay dữ liệu của biến data thành dữ liệu của sản phẩm đó để hiển thị.
-      async function fetchProductData(title) {
+      async function fetchProductData(productName) {
         try {
-          // Replace with your actual API endpoint
-          const response = await fetch(`/api/products?name=${encodeURIComponent(title)}`);
-          if (!response.ok) throw new Error("Product not found");
-          const product = await response.json();
-          return product;
+          const response = await fetch('http://localhost:8000/get-all', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: productName }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.message === 'Không tìm thấy sản phẩm') {
+            console.warn('Product not found:', productName);
+            return null;
+          }
+
+          return data; // Dữ liệu sản phẩm: { name, score, ingredients, ... }
         } catch (error) {
-          console.error("Error fetching product:", error);
-          // Fallback data in case of error
-          return {
-            name: title || "Unknown Product",
-            link_image: "https://via.placeholder.com/560x800",
-            product_url: "#",
-            score: 0,
-            ingredient_concerns: {},
-            ingredients: {},
-          };
+          console.error('Error fetching product data:', error);
+          return null;
         }
       }
       async function renderProductDetails() {

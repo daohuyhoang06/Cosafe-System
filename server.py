@@ -112,6 +112,30 @@ async def ner_and_score(request: NERRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
+# Lấy toàn bộ thông tin sản phẩm: tên sản phẩm, điểm tương tự, link ảnh, thành phần
+@app.post("/get-all")
+async def get_all(request: SafetyRequest):
+    try:
+        # Truy vấn Elasticsearch với term query để tìm chính xác tên sản phẩm
+        result = es.search(
+            index="products",
+            query={
+                "term": {
+                    "name.keyword": request.name  # Tìm chính xác trên trường keyword
+                }
+            },
+            size=1  # Lấy 1 kết quả
+        )
+
+        # Kiểm tra kết quả
+        if not result["hits"]["hits"]:
+            return {"message": "Không tìm thấy sản phẩm"}
+        else:
+            hit = result["hits"]["hits"][0]["_source"]
+            return hit
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @app.post("/search")
 async def productsSearch(request: SearchRequest):

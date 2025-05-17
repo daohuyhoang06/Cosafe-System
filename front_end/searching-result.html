@@ -176,22 +176,54 @@
     // Hàm gọi API tìm sản phẩm 
     async function fetchProducts(query) {
       console.log("Gọi fetchProducts với query:", query);
+
       try {
-        const response = await fetch('http://127.0.0.1:8000/search', {
+        // Thử gọi API /safety trước
+        const safetyResponse = await fetch('http://127.0.0.1:8000/safety', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keyword: query, size: 15 }) // Thay đổi tham số từ name thành keyword
+          body: JSON.stringify({ name: query })
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!safetyResponse.ok) {
+          throw new Error(`HTTP error in /safety! Status: ${safetyResponse.status}`);
         }
 
-        const data = await response.json();
-        console.log("Dữ liệu trả về từ API:", data);
+        const safetyData = await safetyResponse.json();
+        console.log("Dữ liệu trả về từ API /safety:", safetyData);
+
+        // Nếu API /safety trả về kết quả hợp lệ (có name và score)
+        if (safetyData.name && safetyData.score !== undefined) {
+          products = [{
+            title: safetyData.name,
+            score: safetyData.score || 0,
+            search_score: 1.0, // Gán search_score mặc định cho kết quả từ /safety
+            img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
+          }];
+
+          // Cập nhật giao diện
+          hazardTitle.textContent = `Kết quả tìm kiếm cho: "${query}" (1 sản phẩm)`;
+          updatePagination();
+          renderProducts(currentPage);
+          return;
+        }
+
+        // Nếu không tìm thấy sản phẩm từ /safety, gọi API /search
+        const searchResponse = await fetch('http://127.0.0.1:8000/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword: query, size: 15 })
+        });
+
+        if (!searchResponse.ok) {
+          throw new Error(`HTTP error in /search! Status: ${searchResponse.status}`);
+        }
+
+        const searchData = await searchResponse.json();
+        console.log("Dữ liệu trả về từ API /search:", searchData);
 
         // Xử lý trường hợp "Không tìm thấy sản phẩm"
-        if (data.message === "Không tìm thấy sản phẩm" || (data.products && data.products.length === 0)) {
+        if (searchData.message === "Không tìm thấy sản phẩm" || (searchData.products && searchData.products.length === 0)) {
           productGrid.innerHTML = '<p class="no-results">Không tìm thấy sản phẩm phù hợp với tìm kiếm của bạn.</p>';
           products = [];
           updatePagination();
@@ -199,21 +231,17 @@
         }
 
         // Chuyển đổi dữ liệu API thành định dạng hiển thị
-        // Từ mảng sản phẩm trả về từ API
-        products = data.products.map(product => ({
+        products = searchData.products.map(product => ({
           title: product.name,
           score: product.score || 0,
-          search_score: product.search_score, // Điểm tìm kiếm liên quan
+          search_score: product.search_score,
           img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
         }));
 
+        // Cập nhật tiêu đề hiển thị
+        hazardTitle.textContent = `Kết quả tìm kiếm cho: "${query}" (${searchData.total || products.length} sản phẩm)`;
         updatePagination();
         renderProducts(currentPage);
-
-        // Cập nhật tiêu đề hiển thị
-        if (products.length > 0) {
-          hazardTitle.textContent = `Kết quả tìm kiếm cho: "${query}" (${data.total || products.length} sản phẩm)`;
-        }
 
       } catch (error) {
         console.error('Error fetching products:', error);
