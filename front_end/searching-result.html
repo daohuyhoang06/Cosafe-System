@@ -122,13 +122,65 @@
 
     const hazardTitle = document.querySelector('.hazard-title');
 
+
+
+    // // Hàm gọi API tìm sản phẩm 
+    // async function fetchProducts(query) {
+    //   console.log("Gọi fetchProducts với query:", query);
+    //   try {
+    //     const response = await fetch('http://127.0.0.1:8000/safety', {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify({ name: query })
+    //     });
+
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! Status: ${response.status}`);
+    //     }
+
+    //     const data = await response.json();
+    //     console.log("Dữ liệu trả về từ API:", data);
+
+    //     // Xử lý trường hợp "Không tìm thấy sản phẩm"
+    //     if (data.message === "Không tìm thấy sản phẩm") {
+    //       productGrid.innerHTML = '<p class="no-results">Không tìm thấy sản phẩm phù hợp với tìm kiếm của bạn.</p>';
+    //       products = [];
+    //       updatePagination();
+    //       return;
+    //     }
+
+    //     // Chuyển đổi dữ liệu API thành định dạng hiển thị
+    //     // Sản phẩm đơn lẻ được chuyển thành mảng chứa 1 sản phẩm
+    //     products = [{
+    //       title: data.name || query,
+    //       score: data.score || 0,
+    //       img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
+    //     }];
+
+    //     updatePagination();
+    //     renderProducts(currentPage);
+
+    //     // Cập nhật tiêu đề hiển thị
+    //     if (data.name) {
+    //       hazardTitle.textContent = data.name;
+    //     }
+
+    //   } catch (error) {
+    //     console.error('Error fetching products:', error);
+    //     productGrid.innerHTML = '<p class="error-message">Lỗi khi tải dữ liệu sản phẩm. Vui lòng thử lại.</p>';
+    //     products = [];
+    //     updatePagination();
+    //   }
+    // }
+
+    // Hàm gọi API tìm sản phẩm 
     async function fetchProducts(query) {
       console.log("Gọi fetchProducts với query:", query);
       try {
-        const response = await fetch('http://127.0.0.1:8000/safety', {
+        const response = await fetch('http://127.0.0.1:8000/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: query })
+          body: JSON.stringify({ keyword: query, size: 15 }) // Thay đổi tham số từ name thành keyword
         });
 
         if (!response.ok) {
@@ -139,7 +191,7 @@
         console.log("Dữ liệu trả về từ API:", data);
 
         // Xử lý trường hợp "Không tìm thấy sản phẩm"
-        if (data.message === "Không tìm thấy sản phẩm") {
+        if (data.message === "Không tìm thấy sản phẩm" || (data.products && data.products.length === 0)) {
           productGrid.innerHTML = '<p class="no-results">Không tìm thấy sản phẩm phù hợp với tìm kiếm của bạn.</p>';
           products = [];
           updatePagination();
@@ -147,19 +199,20 @@
         }
 
         // Chuyển đổi dữ liệu API thành định dạng hiển thị
-        // Sản phẩm đơn lẻ được chuyển thành mảng chứa 1 sản phẩm
-        products = [{
-          title: data.name || query,
-          score: data.score || 0,
+        // Từ mảng sản phẩm trả về từ API
+        products = data.products.map(product => ({
+          title: product.name,
+          score: product.score || 0,
+          search_score: product.search_score, // Điểm tìm kiếm liên quan
           img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
-        }];
+        }));
 
         updatePagination();
         renderProducts(currentPage);
 
         // Cập nhật tiêu đề hiển thị
-        if (data.name) {
-          hazardTitle.textContent = data.name;
+        if (products.length > 0) {
+          hazardTitle.textContent = `Kết quả tìm kiếm cho: "${query}" (${data.total || products.length} sản phẩm)`;
         }
 
       } catch (error) {

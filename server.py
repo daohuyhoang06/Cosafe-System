@@ -43,6 +43,10 @@ class SafetyRequest(BaseModel):
 class NERRequest(BaseModel):
     content: str
 
+class SearchRequest(BaseModel):
+    keyword: str
+    size: int = 10  # Mặc định trả về 10 kết quả
+
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
     try:
@@ -105,6 +109,66 @@ async def ner_and_score(request: NERRequest):
             return {"ingredients": [], "message": "Không tìm thấy thành phần"}
 
         return {"ingredients": ingredient_list}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
+
+@app.post("/search")
+async def productsSearch(request: SearchRequest):
+    try:
+        # Truy vấn Elasticsearch với fuzzy search để tìm các sản phẩm có tên gần giống
+        result = es.search(
+            index="products",
+            query={
+                "bool": {
+                    "should": [
+                        # Tìm kiếm mờ - cho phép sai sót trong chuỗi
+                        {
+                            "fuzzy": {
+                                "name": {
+                                    "value": request.keyword,
+                                    "fuzziness": "AUTO"
+                                }
+                            }
+                        },
+                        # Tìm kiếm match - tìm các từ trong tên sản phẩm
+                        {
+                            "match": {
+                                "name": {
+                                    "query": request.keyword,
+                                    "boost": 2  # Tăng độ ưu tiên cho kết quả match
+                                }
+                            }
+                        },
+                        # Tìm kiếm prefix - bắt đầu với từ khóa
+                        {
+                            "prefix": {
+                                "name": {
+                                    "value": request.keyword,
+                                    "boost": 1.5  # Tăng độ ưu tiên cho kết quả prefix
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            size=request.size  # Số lượng kết quả trả về
+        )
+                # Kiểm tra kết quả
+        if not result["hits"]["hits"]:
+            return {"products": [], "message": "Không tìm thấy sản phẩm"}
+        else:
+            products = []
+            for hit in result["hits"]["hits"]:
+                source = hit["_source"]
+                products.append({
+                    "name": source["name"],
+                    "score": source.get("score", 0),
+                    "search_score": hit["_score"]  # Thêm điểm liên quan từ tìm kiếm
+                })
+            
+            return {"products": products, "total": result["hits"]["total"]["value"]}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
