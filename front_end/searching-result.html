@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWG Skin Deep</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="home-page.html" class="logo-link">Cosafe System</a>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <form action="searching-result.html" method="GET" class="search-container fade-in">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar">
+    </form>
+
+    <div class="hazard-header fade-in delay-1">
+      <div class="hazard-title"></div>
+      <div class="hazard-links">
+        <a id="scoreLink" href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+        <span class="divider">|</span>
+        <a id="verifiedLink" href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
+      </div>
+    </div>
+
+
+    <div class="hazard-container">
+      <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
+      <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
+    </div>
+
+    <div class="ewg-products">
+      <div class="fade-in delay-4">
+        <div class="header-with-sort">
+          <select id="sortOption" class="sort-select">
+            <option value="default">Sort: Default</option>
+            <option value="asc">Sort: A → Z</option>
+            <option value="desc">Sort: Z → A</option>
+          </select>
+          <p class="center-text">HERE ARE THE PRODUCTS MATCHING YOUR SEARCH:</p>
+        </div>
+      </div>
+      <div class="product-grid"></div>
+    </div>
+
+  </div>
+
+  <div class="pagination">
+    <button id="prevPage" disabled>Previous</button>
+    <span id="pageInfo"></span>
+    <button id="nextPage">Next</button>
+  </div>
+
+  <div class="background-image"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('query');
+    if (query) {
+      document.querySelector('.search-bar').value = query;
+    }
+
+    const scoreLink = document.getElementById('scoreLink');
+    const verifiedLink = document.getElementById('verifiedLink');
+
+    scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(query)}`;
+    verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(query)}`;
+
+  </script>
+
+  <script>
+    const button = document.getElementById("activateBtn");
+    window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true"
+    button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
+
+    button.addEventListener("click", function () {
+      window.isCosafeActive = !window.isCosafeActive;
+      localStorage.setItem("isCosafeActive", window.isCosafeActive);
+      this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
+      renderProducts(currentPage);
+    });
+  </script>
+
+  <script>
+    //TO DO: Dùng trực tiếp biến query luôn không phải khai báo. Đây là nội dung được nhập ở trên thanh tìm
+    //kiếm. Sau đó, sẽ trả về danh sách các sản phẩm có tên khớp với query. Danh sách này lưu trữ giống như
+    //biến products giả định phía dưới: chỉ cần img - link_image và title - tên sản phẩm.
+    // const products = [
+    //   { img: "assets/images/product1.jpg", title: "Adorable Baby Natural Baby Lotion" },
+    //   { img: "assets/images/product2.jpg", title: "Common Heir 10% Vitamin C Serum" },
+    //   { img: "assets/images/product3.jpg", title: "Better & Better Fully Charged Toothpaste, Bettermint" },
+    //   { img: "assets/images/product4.jpg", title: "Follain Eye Cream Firm + Brighten" },
+    //   { img: "assets/images/product5.jpg", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
+    //   { img: "assets/images/product6.jpg", title: "Lowen's Natural Skin Care Butter Balm" },
+    //   { img: "assets/images/product7.jpg", title: "Sally B's Skin Yummies Sugar Scrub, Lavender (old formulation)" },
+    //   { img: "assets/images/product8.jpg", title: "Sally B's Skin Yummies B Smudged, Smokey Charcoal (2022 formulation)" },
+    //   { img: "assets/images/product9.jpg", title: "isoi Sensitive Skin Essence Hand Cream" },
+    //   { img: "assets/images/product10.png", title: "Akar Skin Soothe Cleansing Milk" },
+    //   { img: "assets/images/product11.jpg", title: "Superbloom Reviving Skin Soak Mist" },
+    //   { img: "assets/images/product12.jpg", title: "DIME Beauty Super Skin Toner" },
+    //   { img: "assets/images/product13.jpg", title: "Lowen's Natural Skin Care Shampoo is Betta!" },
+    //   { img: "assets/images/product14.jpg", title: "Lowen's Natural Skin Care Bum Balm Blues Diaper Balm" },
+    //   { img: "assets/images/product15.jpg", title: "Sally B's Skin Yummies EcoBody, Lavender" },
+    // ];
+    let products = [];
+    let totalPages = 1;
+    const itemsPerPage = 10;
+    let currentPage = 1;
+    let currentSort = 'default';
+
+    const productGrid = document.querySelector('.product-grid');
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    const pageInfo = document.getElementById('pageInfo');
+
+    const hazardTitle = document.querySelector('.hazard-title');
+
+    async function fetchProducts(query) {
+      console.log("Gọi fetchProducts với query:", query);
+      try {
+        const response = await fetch('http://127.0.0.1:8000/safety', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: query })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Dữ liệu trả về từ API:", data);
+
+        // Xử lý trường hợp "Không tìm thấy sản phẩm"
+        if (data.message === "Không tìm thấy sản phẩm") {
+          productGrid.innerHTML = '<p class="no-results">Không tìm thấy sản phẩm phù hợp với tìm kiếm của bạn.</p>';
+          products = [];
+          updatePagination();
+          return;
+        }
+
+        // Chuyển đổi dữ liệu API thành định dạng hiển thị
+        // Sản phẩm đơn lẻ được chuyển thành mảng chứa 1 sản phẩm
+        products = [{
+          title: data.name || query,
+          score: data.score || 0,
+          img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
+        }];
+
+        updatePagination();
+        renderProducts(currentPage);
+
+        // Cập nhật tiêu đề hiển thị
+        if (data.name) {
+          hazardTitle.textContent = data.name;
+        }
+
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        productGrid.innerHTML = '<p class="error-message">Lỗi khi tải dữ liệu sản phẩm. Vui lòng thử lại.</p>';
+        products = [];
+        updatePagination();
+      }
+    }
+
+    function updatePagination() {
+      totalPages = Math.ceil(products.length / itemsPerPage) || 1;
+      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages || products.length === 0;
+    }
+
+
+    function renderProducts(page) {
+      productGrid.innerHTML = '';
+
+      let sortedProducts = [...products];
+
+      const start = (page - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+
+      let paginatedItems = null;
+      if (currentSort === 'asc') {
+        sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
+        paginatedItems = sortedProducts.slice(start, end);
+      } else if (currentSort === 'desc') {
+        sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
+        paginatedItems = sortedProducts.slice(start, end);
+      } else {
+        paginatedItems = products.slice(start, end);
+      }
+
+      paginatedItems.forEach((prod, index) => {
+        const card = document.createElement('div');
+        card.classList.add('product-card');
+
+        card.innerHTML = `
+          <img src="${prod.img}" alt="${prod.title}">
+          <div class="title">${prod.title}</div>
+        `;
+
+        card.addEventListener("click", () => {
+          const encodedTitle = encodeURIComponent(prod.title);
+
+          window.location.href = `product-detail.html?query=${query}&title=${encodedTitle}`;
+        });
+
+
+        productGrid.appendChild(card);
+      });
+
+      if (window.isCosafeActive) {
+        document.querySelectorAll('.title').forEach(el => {
+          const productName = el.textContent.trim();
+
+          el.classList.remove('green-highlight', 'yellow-highlight', 'red-highlight');
+          const color = getColorForProduct(productName);
+          if (color == 'green') {
+            el.classList.add('green-highlight');
+          } else if (color == 'yellow') {
+            el.classList.add('yellow-highlight');
+          } else if (color == 'red') {
+            el.classList.add('red-highlight');
+          }
+        });
+      }
+
+      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages;
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderProducts(currentPage);
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderProducts(currentPage);
+      }
+    });
+
+    document.getElementById("sortOption").addEventListener("change", function () {
+      currentSort = this.value;
+      currentPage = 1;
+      renderProducts(currentPage);
+    });
+
+
+    renderProducts(currentPage);
+
+    function getColorForProduct(productName) {
+      //TO DO: nhận đầu vào là tên sản phẩm, đầu ra là màu tô cho sản phẩm đó: red, yellow, green; null nếu không cần tô
+      if (productName.startsWith('C')) return 'red';
+      if (productName.startsWith('F')) return 'yellow';
+      if (productName.startsWith('J')) return 'green';
+      return 'green';
+    }
+
+    // Gọi API và render khi trang được load
+    (async () => {
+      if (query) {
+        await fetchProducts(query);
+      } else {
+        productGrid.innerHTML = '<p class="no-query">Vui lòng nhập từ khóa tìm kiếm để xem kết quả.</p>';
+        console.warn("Không có query trong URL, không fetch được sản phẩm.");
+      }
+    })();
+
+  </script>
+
+
+
+</body>
+
+</html>
