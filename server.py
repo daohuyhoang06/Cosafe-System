@@ -10,17 +10,17 @@ import re
 app = FastAPI()
 
 # Cấu hình kết nối với Elasticsearch
-es = Elasticsearch(
-    hosts=["https://localhost:9200/"],  
-    basic_auth=("elastic", "OYRcPIeE=EB_YELaA=hT"),
-    verify_certs=False,
-    ssl_show_warn=False 
-)
+#es = Elasticsearch(
+#    hosts=["https://localhost:9200/"],  
+#    basic_auth=("elastic", "OYRcPIeE=EB_YELaA=hT"),
+#    verify_certs=False,
+#    ssl_show_warn=False 
+#)
 
-# es = Elasticsearch(
-#     "https://934a7c2c20c740988176e6696afaf098.us-central1.gcp.cloud.es.io:443",
-#     api_key="NWN0RTFKWUJHS0dSZFVQVFU0SHc6Z2RDVFRVTHo2c0JPY1Z0ektaZ0lwUQ=="
-# )
+es = Elasticsearch(
+     "https://934a7c2c20c740988176e6696afaf098.us-central1.gcp.cloud.es.io:443",
+     api_key="NWN0RTFKWUJHS0dSZFVQVFU0SHc6Z2RDVFRVTHo2c0JPY1Z0ektaZ0lwUQ=="
+)
 
 # Kiểm tra kết nối Elasticsearch
 if not es.ping():
