@@ -341,12 +341,23 @@
 
     renderProducts(currentPage);
 
+
     function getColorForProduct(productName) {
-      //TO DO: nhận đầu vào là tên sản phẩm, đầu ra là màu tô cho sản phẩm đó: red, yellow, green; null nếu không cần tô
-      if (productName.startsWith('C')) return 'red';
-      if (productName.startsWith('F')) return 'yellow';
-      if (productName.startsWith('J')) return 'green';
-      return 'green';
+      // Tìm sản phẩm trong mảng products dựa trên productName
+      const prod = products.find((p) => p.title === productName);
+
+      // Nếu không tìm thấy sản phẩm hoặc score không phải là số, trả về null
+      if (!prod || typeof prod.score !== "number") return null;
+
+      const score = prod.score;
+
+      // Xác định màu dựa trên khoảng giá trị của score
+      if (score >= 0 && score <= 2) return "green";
+      if (score >= 3 && score <= 6) return "yellow";
+      if (score >= 7 && score <= 10) return "red";
+
+      // Nếu score ngoài khoảng 0-10, trả về null
+      return null;
     }
 
     // Gọi API và render khi trang được load
