@@ -1,5 +1,5 @@
-# main.py
-from fastapi import FastAPI, HTTPException, status
+# server.py
+from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from elasticsearch import Elasticsearch
 from pydantic import BaseModel
 from typing import List, Dict
@@ -7,6 +7,9 @@ import logging
 import re
 import os 
 from fastapi.middleware.cors import CORSMiddleware 
+import google.generativeai as genai
+import json
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -25,6 +28,8 @@ app.add_middleware(
 
 ES_CLOUD_URL = os.getenv("ES_CLOUD_URL", "https://934a7c2c20c740988176e6696afaf098.us-central1.gcp.cloud.es.io:443")
 ES_API_KEY = os.getenv("ES_API_KEY", "NWN0RTFKWUJHS0dSZFVQVFU0SHc6Z2RDVFRVTHo2c0JPY1Z0ektaZ0lwUQ==")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAyXsnMxeTdnEiu6oLVxjRGLGJ2hvRasBM") 
+genai.configure(api_key=GEMINI_API_KEY)
 
 es = Elasticsearch(
     [ES_CLOUD_URL],
@@ -140,45 +145,79 @@ async def get_all(request: SafetyRequest):
 @app.post("/search")
 async def productsSearch(request: SearchRequest):
     try:
-        # Truy vấn Elasticsearch với fuzzy search để tìm các sản phẩm có tên gần giống
+        # Tách từ khóa thành các từ riêng lẻ
+        keywords = request.keyword.split()
+        
+        # Xây dựng truy vấn Elasticsearch
+        should_clauses = []
+        
+        # Truy vấn cho từng từ khóa riêng lẻ
+        for keyword in keywords:
+            should_clauses.extend([
+                # Tìm kiếm mờ cho từng từ
+                {
+                    "fuzzy": {
+                        "name": {
+                            "value": keyword,
+                            "fuzziness": "AUTO",
+                            "boost": 1.0
+                        }
+                    }
+                },
+                # Tìm kiếm match cho từng từ
+                {
+                    "match": {
+                        "name": {
+                            "query": keyword,
+                            "boost": 2.0
+                        }
+                    }
+                },
+                # Tìm kiếm prefix cho từng từ
+                {
+                    "prefix": {
+                        "name": {
+                            "value": keyword,
+                            "boost": 1.0
+                        }
+                    }
+                }
+            ])
+        
+        # Thêm truy vấn cho toàn bộ từ khóa (ưu tiên cao hơn nếu khớp đầy đủ)
+        should_clauses.extend([
+            {
+                "match_phrase": {
+                    "name": {
+                        "query": request.keyword,
+                        "boost": 5.0  # Ưu tiên cao cho khớp chính xác hoặc gần đúng toàn bộ cụm
+                    }
+                }
+            },
+            {
+                "fuzzy": {
+                    "name": {
+                        "value": request.keyword,
+                        "fuzziness": "AUTO",
+                        "boost": 3.0
+                    }
+                }
+            }
+        ])
+
+        # Truy vấn Elasticsearch
         result = es.search(
             index="products",
             query={
                 "bool": {
-                    "should": [
-                        # Tìm kiếm mờ - cho phép sai sót trong chuỗi
-                        {
-                            "fuzzy": {
-                                "name": {
-                                    "value": request.keyword,
-                                    "fuzziness": "AUTO"
-                                }
-                            }
-                        },
-                        # Tìm kiếm match - tìm các từ trong tên sản phẩm
-                        {
-                            "match": {
-                                "name": {
-                                    "query": request.keyword,
-                                    "boost": 2  # Tăng độ ưu tiên cho kết quả match
-                                }
-                            }
-                        },
-                        # Tìm kiếm prefix - bắt đầu với từ khóa
-                        {
-                            "prefix": {
-                                "name": {
-                                    "value": request.keyword,
-                                    "boost": 1.5  # Tăng độ ưu tiên cho kết quả prefix
-                                }
-                            }
-                        }
-                    ]
+                    "should": should_clauses,
+                    "minimum_should_match": 1  # Chỉ cần ít nhất 1 từ khớp
                 }
             },
-            size=request.size  # Số lượng kết quả trả về
+            size=request.size
         )
-                # Kiểm tra kết quả
+
+        # Kiểm tra kết quả
         if not result["hits"]["hits"]:
             return {"products": [], "message": "Không tìm thấy sản phẩm"}
         else:
@@ -188,13 +227,58 @@ async def productsSearch(request: SearchRequest):
                 products.append({
                     "name": source["name"],
                     "score": source.get("score", 0),
-                    "search_score": hit["_score"]  # Thêm điểm liên quan từ tìm kiếm
+                    "search_score": hit["_score"]
                 })
-            
             return {"products": products, "total": result["hits"]["total"]["value"]}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
+@app.post("/image-process")
+async def extract_labels(file: UploadFile = File(...)):
+    try:
+        # Kiểm tra định dạng file
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="File phải là ảnh (jpg, png, v.v.)")
+        
+        # Kiểm tra kích thước file (giới hạn 10MB)
+        content = await file.read()
+        if len(content) > 10 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File quá lớn, tối đa 10MB")
+        
+        # Khởi tạo Gemini model
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        
+        # Chuẩn bị ảnh và prompt
+        image = {
+            "mime_type": file.content_type,
+            "data": content
+        }
+        # prompt = "Find the products in this picture and return in JSON format: [{'description': 'object', 'score': 0.9}, ...]. Ensure the response is valid JSON and contains only the JSON object."
+        prompt = "Identify and extract the product name from the label on the bottle in this image. Return the result in JSON format: [{'description': 'product name', 'score': 0.9}, ...]. Ensure the response is valid JSON and contains only the JSON object."
+        
+        # Gọi Gemini API
+        response = model.generate_content([prompt, image])
+        if not response.text:
+            raise HTTPException(status_code=500, detail="Gemini API không trả về kết quả")
+        
+        # Phân tích JSON response
+        try:
+            labels = json.loads(response.text.strip("```json\n").strip("```"))
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=500, detail="Không thể phân tích JSON từ Gemini API")
+        
+        # Trả về kết quả
+        return {
+            "labels": labels,
+            "total_labels": len(labels),
+            "message": "Xử lý ảnh thành công" if labels else "Không tìm thấy đối tượng nào trong ảnh"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi server: {str(e)}")
 
 # Chạy server
 if __name__ == "__main__":
