@@ -179,7 +179,7 @@
 
       try {
         // Thử gọi API /safety trước
-        const safetyResponse = await fetch('http://127.0.0.1:8000/safety', {
+        const safetyResponse = await fetch('http://127.0.0.1:8000/get-all', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: query })
@@ -198,7 +198,7 @@
             title: safetyData.name,
             score: safetyData.score || 0,
             search_score: 1.0, // Gán search_score mặc định cho kết quả từ /safety
-            img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
+            img: safetyData.link_image || `assets/images/product-placeholder.jpg` // Ảnh mặc định
           }];
 
           // Cập nhật giao diện
@@ -235,7 +235,7 @@
           title: product.name,
           score: product.score || 0,
           search_score: product.search_score,
-          img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
+          img: product.link_image || 'assets/images/product-placeholder.jpg'
         }));
 
         // Cập nhật tiêu đề hiển thị

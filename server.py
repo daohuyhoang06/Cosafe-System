@@ -60,7 +60,7 @@ class SearchRequest(BaseModel):
 async def safety_check(request: SafetyRequest):
     try:
         result = es.search(
-            index="products",
+            index="cs_products_data",
             query={
                 "term": {
                     "name.keyword": request.name
@@ -86,7 +86,7 @@ async def ner_and_score(request: NERRequest):
         ingredient_list = []
         for ingredient in ingredients:
             result = es.search(
-                index="products",
+                index="cs_products_data",
                 query={
                     "bool": {
                         "filter": [
@@ -116,7 +116,7 @@ async def ner_and_score(request: NERRequest):
 async def get_all(request: SafetyRequest):
     try:
         result = es.search(
-            index="products",
+            index="cs_products_data",
             query={
                 "term": {
                     "name.keyword": request.name
@@ -131,6 +131,7 @@ async def get_all(request: SafetyRequest):
             return hit
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
 
 @app.post("/search")
 async def productsSearch(request: SearchRequest):
@@ -197,7 +198,7 @@ async def productsSearch(request: SearchRequest):
 
         # Truy vấn Elasticsearch
         result = es.search(
-            index="products",
+            index="cs_products_data",
             query={
                 "bool": {
                     "should": should_clauses,
@@ -217,13 +218,15 @@ async def productsSearch(request: SearchRequest):
                 products.append({
                     "name": source["name"],
                     "score": source.get("score", 0),
-                    "search_score": hit["_score"]
+                    "search_score": hit["_score"],
+                    "img": source.get("link_image", source.get("image_url", source.get("image", "")))
                 })
             return {"products": products, "total": result["hits"]["total"]["value"]}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
+    
 @app.post("/image-process")
 async def extract_labels(file: UploadFile = File(...)):
     try:
