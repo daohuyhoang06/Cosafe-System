@@ -5,10 +5,14 @@ from pydantic import BaseModel
 from typing import List, Dict
 import logging
 import re
-import os 
-from fastapi.middleware.cors import CORSMiddleware 
+import os
+from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 import json
+from dotenv import load_dotenv
+
+# Tải biến môi trường từ file .env
+load_dotenv()
 
 app = FastAPI()
 app.add_middleware(
@@ -18,23 +22,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Cấu hình kết nối với Elasticsearch
-#es = Elasticsearch(
-#    hosts=["https://localhost:9200/"],  
-#    basic_auth=("elastic", "OYRcPIeE=EB_YELaA=hT"),
-#    verify_certs=False,
-#    ssl_show_warn=False 
-#)
 
-ES_CLOUD_URL = os.getenv("ES_CLOUD_URL", "https://934a7c2c20c740988176e6696afaf098.us-central1.gcp.cloud.es.io:443")
-ES_API_KEY = os.getenv("ES_API_KEY", "NWN0RTFKWUJHS0dSZFVQVFU0SHc6Z2RDVFRVTHo2c0JPY1Z0ektaZ0lwUQ==")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAyXsnMxeTdnEiu6oLVxjRGLGJ2hvRasBM") 
+# Cấu hình kết nối với Elasticsearch
+ES_CLOUD_URL = os.getenv("ES_CLOUD_URL")
+ES_API_KEY = os.getenv("ES_API_KEY")
+if not ES_CLOUD_URL or not ES_API_KEY:
+    raise ValueError("Không tìm thấy ES_CLOUD_URL hoặc ES_API_KEY. Vui lòng đặt trong file .env hoặc biến môi trường.")
+
+# Cấu hình Gemini API
+GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("Không tìm thấy GOOGLE_API_KEY. Vui lòng đặt trong file .env hoặc biến môi trường.")
 genai.configure(api_key=GEMINI_API_KEY)
 
 es = Elasticsearch(
     [ES_CLOUD_URL],
     api_key=ES_API_KEY,
-    headers={"Content-Type": "application/json"}  # Rõ ràng thêm Content-Type (không bắt buộc)
+    headers={"Content-Type": "application/json"}
 )
 
 # Kiểm tra kết nối Elasticsearch
@@ -50,29 +54,25 @@ class NERRequest(BaseModel):
 
 class SearchRequest(BaseModel):
     keyword: str
-    size: int = 10  # Mặc định trả về 10 kết quả
+    size: int = 10
 
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
     try:
-        # Truy vấn Elasticsearch với term query để tìm chính xác tên sản phẩm
         result = es.search(
             index="products",
             query={
                 "term": {
-                    "name.keyword": request.name  # Tìm chính xác trên trường keyword
+                    "name.keyword": request.name
                 }
             },
-            size=1  # Lấy 1 kết quả
+            size=1
         )
-
-        # Kiểm tra kết quả
         if not result["hits"]["hits"]:
             return {"message": "Không tìm thấy sản phẩm"}
         else:
             hit = result["hits"]["hits"][0]["_source"]
             return {"name": hit["name"], "score": hit["score"]}
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
@@ -80,12 +80,9 @@ async def safety_check(request: SafetyRequest):
 async def ner_and_score(request: NERRequest):
     try:
         ingredients = re.split(r',|\s+và\s+|\s+hoặc\s+', request.content)
-    
         if not ingredients:
-           return {"ingredients": [], "message": "Không tìm thấy thành phần trong văn bản"}
+            return {"ingredients": [], "message": "Không tìm thấy thành phần trong văn bản"}
         
-
-        # Tìm kiếm sản phẩm chứa các thành phần khớp chính xác
         ingredient_list = []
         for ingredient in ingredients:
             result = es.search(
@@ -93,13 +90,12 @@ async def ner_and_score(request: NERRequest):
                 query={
                     "bool": {
                         "filter": [
-                            {"exists": {"field": f"ingredients.{ingredient.upper()}"}}  # Kiểm tra thành phần tồn tại
+                            {"exists": {"field": f"ingredients.{ingredient.upper()}"}}
                         ]
                     }
                 },
                 size=1
             )
-
             hits = result.get("hits", {}).get("hits", [])
             if hits:
                 hit = hits[0]
@@ -112,33 +108,27 @@ async def ner_and_score(request: NERRequest):
                         })
         if not ingredient_list:
             return {"ingredients": [], "message": "Không tìm thấy thành phần"}
-
         return {"ingredients": ingredient_list}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
-# Lấy toàn bộ thông tin sản phẩm: tên sản phẩm, điểm tương tự, link ảnh, thành phần
 @app.post("/get-all")
 async def get_all(request: SafetyRequest):
     try:
-        # Truy vấn Elasticsearch với term query để tìm chính xác tên sản phẩm
         result = es.search(
             index="products",
             query={
                 "term": {
-                    "name.keyword": request.name  # Tìm chính xác trên trường keyword
+                    "name.keyword": request.name
                 }
             },
-            size=1  # Lấy 1 kết quả
+            size=1
         )
-
-        # Kiểm tra kết quả
         if not result["hits"]["hits"]:
             return {"message": "Không tìm thấy sản phẩm"}
         else:
             hit = result["hits"]["hits"][0]["_source"]
             return hit
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
@@ -247,14 +237,13 @@ async def extract_labels(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="File quá lớn, tối đa 10MB")
         
         # Khởi tạo Gemini model
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         
         # Chuẩn bị ảnh và prompt
         image = {
             "mime_type": file.content_type,
             "data": content
         }
-        # prompt = "Find the products in this picture and return in JSON format: [{'description': 'object', 'score': 0.9}, ...]. Ensure the response is valid JSON and contains only the JSON object."
         prompt = "Identify and extract the product name from the label on the bottle in this image. Return the result in JSON format: [{'description': 'product name', 'score': 0.9}, ...]. Ensure the response is valid JSON and contains only the JSON object."
         
         # Gọi Gemini API
@@ -272,7 +261,7 @@ async def extract_labels(file: UploadFile = File(...)):
         return {
             "labels": labels,
             "total_labels": len(labels),
-            "message": "Xử lý ảnh thành công" if labels else "Không tìm thấy đối tượng nào trong ảnh"
+            "message": "Xử lý ảnh thành công" if labels else "Không tìm thấy tên sản phẩm trên nhãn"
         }
     
     except HTTPException:
@@ -280,7 +269,6 @@ async def extract_labels(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server: {str(e)}")
 
-# Chạy server
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
