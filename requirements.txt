@@ -3,6 +3,8 @@ uvicorn
 sqlalchemy
 passlib
 bcrypt
-elassticsearch
+elasticsearch
 python-multipart
 starlette
+google.generativeai
+dotenv
