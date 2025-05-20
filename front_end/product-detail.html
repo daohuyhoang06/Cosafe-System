@@ -23,14 +23,67 @@
         action="searching-result.html"
         method="GET"
         class="search-container fade-in"
+        id="searchForm"
+        autocomplete="off"
       >
         <input
           type="text"
           name="query"
           placeholder="Search for a product"
           class="search-bar"
+          id="textSearchBar"
         />
+        <button
+          type="button"
+          class="image-search-btn"
+          id="openImageModal"
+          title="Search by image"
+        >
+          <img src="assets/images/camera-icon.png" alt="Search by image" />
+        </button>
       </form>
+
+      <!-- Modal tìm kiếm bằng ảnh (hiện chỉ khi bấm icon) -->
+      <div id="imageSearchModal" class="image-search-modal">
+        <div class="modal-content">
+          <span class="close-modal" id="closeImageModal">&times;</span>
+          <h2>Search by Image</h2>
+          <div class="drop-area" id="dropArea">
+            <img
+              src="assets/images/imagesearching.jpg"
+              alt="Drop area"
+              class="drop-image"
+            />
+            <p>
+              Drag an image here or
+              <label for="imageInput" class="upload-link">upload a file</label>
+            </p>
+            <input
+              type="file"
+              id="imageInput"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
+          <div class="or-divider">OR</div>
+          <input
+            type="text"
+            id="imageUrlInput"
+            class="image-url-input"
+            placeholder="Paste image URL here"
+          />
+          <button
+            type="button"
+            class="image-search-submit"
+            id="submitImageSearch"
+          >
+            Search
+          </button>
+          <div id="imageSearchLoading" class="loading" style="display: none">
+            Processing image...
+          </div>
+        </div>
+      </div>
 
       <div class="hazard-header fade-in delay-1">
         <div class="hazard-title"></div>
@@ -87,16 +140,66 @@
           <div class="product-image-wrapper">
             <img id="productImage" alt="Product" />
           </div>
-          <button id="downloadImageBtn" type="button" style="margin-top: 12px">
-            Download Image
+          <div>WHERE TO BUY</div>
+          <button id="findOnAmazonBtn" type="button" style="margin-top: 12px">
+            Search on Amazon
           </button>
+          <div class="affiliate-note">
+            When you make a purchase through retailer links on our site, we may
+            earn commission through affiliate programs. All affiliate fees EWG
+            receives support our nonprofit mission. Learn more here
+          </div>
         </div>
       </div>
 
+      <div class="form-section-bg">
+        <div class="guide-title">
+          GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br />
+          CHOOSING SAFER PERSONAL CARE PRODUCTS!
+        </div>
+        <form autocomplete="off">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="country">Country</label>
+              <select id="country" name="country">
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="GB">United Kingdom</option>
+                <option value="AU">Australia</option>
+                <option value="VN" selected>Vietnam</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="zip">ZIP Code</label>
+              <input type="text" id="zip" name="zip" placeholder="" />
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group full-width">
+              <label for="email">Email*</label>
+              <input type="email" id="email" name="email" placeholder="" />
+            </div>
+          </div>
+          <div class="submit-btn-row">
+            <button type="submit" class="submit-btn">GET THE GUIDE</button>
+          </div>
+        </form>
+        <div class="form-note">
+          Stay informed by signing up to receive email tips, action alerts,
+          promotions to support our work and more from EWG. You can opt-out at
+          any time.
+        </div>
+      </div>
       <div class="background-image"></div>
 
+      <!-- Tách phần gửi email sang file ngoài -->
+      <script src="assets/js/guide-email.js"></script>
       <script>
-        // Biến toàn cục
+        setupGuideEmailForm();
+      </script>
+      <!-- Các script riêng của trang giữ nguyên -->
+      <script>
         window.isCosafeActive =
           localStorage.getItem("isCosafeActive") === "true";
         window.currentProductData = null;
@@ -114,7 +217,6 @@
           this.textContent = window.isCosafeActive
             ? "Deactivate Cosafe"
             : "Activate Cosafe";
-          // Khi bật thì tô màu, tắt thì trả lại bản gốc
           if (window.isCosafeActive) {
             renderIngredientLine();
           } else if (
@@ -126,7 +228,6 @@
           }
         });
 
-        // Tô màu cho ingredientLine
         function renderIngredientLine() {
           if (!ingredientLineElement || !window.currentProductData) return;
 
@@ -170,13 +271,12 @@
           if (score === undefined) {
             return null;
           }
-          if (score >= 0 && score <= 2) return "#b9f5cc"; // green nhạt
-          if (score >= 3 && score <= 6) return "#fffab8"; // yellow nhạt
-          if (score >= 7 && score <= 10) return "#ffd6d6"; // red nhạt
+          if (score >= 0 && score <= 2) return "#b9f5cc";
+          if (score >= 3 && score <= 6) return "#fffab8";
+          if (score >= 7 && score <= 10) return "#ffd6d6";
           return null;
         }
 
-        // Lấy param và fetch data
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get("query");
         const title = urlParams.get("title");
@@ -205,7 +305,7 @@
               return null;
             }
 
-            return data; // Dữ liệu sản phẩm: { name, score, ingredients, ... }
+            return data;
           } catch (error) {
             console.error("Error fetching product data:", error);
             return null;
@@ -221,7 +321,6 @@
             return;
           }
 
-          // Fetch product data
           const data = await fetchProductData(title);
 
           if (!data) {
@@ -232,24 +331,16 @@
             return;
           }
 
-          // Lưu lại data sản phẩm hiện tại để dùng lại
           window.currentProductData = data;
-
-          // Hiển thị tên sản phẩm
           document.getElementById("productName").textContent =
             data.name || "Unknown Product";
-
-          // Hiển thị ảnh sản phẩm (nếu có, nếu không dùng placeholder)
           document.getElementById("productImage").src =
             data.link_image || "assets/images/product-placeholder.jpg";
-
-          // Hiển thị ảnh điểm số (dựa trên score, nếu có)
           document.getElementById("scoreImage").src =
             data.score !== undefined
               ? `assets/images/score-${Math.round(data.score * 1)}.png`
               : "assets/images/score-na.png";
 
-          // Hiển thị mối quan ngại (ingredient_concerns)
           const concernsDiv = document.getElementById("concernsList");
           concernsDiv.innerHTML = "";
           if (data.ingredient_concerns) {
@@ -271,19 +362,16 @@
             concernsDiv.innerHTML = "<p>No ingredient concerns available.</p>";
           }
 
-          // Hiển thị danh sách thành phần trong ingredientLine
           ingredientLineElement = document.getElementById("ingredientLine");
           ingredientLineElement.textContent = data.ingredients
             ? Object.keys(data.ingredients).join(",\u00A0")
             : "No ingredients available";
 
           window.originalIngredientLineText = ingredientLineElement.textContent;
-          // Khi tải lên, hiện đúng trạng thái Cosafe
           if (window.isCosafeActive) {
             renderIngredientLine();
           }
 
-          // Hiển thị chi tiết thành phần trong ingredientList
           const ingredientsDiv = document.getElementById("ingredientList");
           ingredientsDiv.innerHTML = "";
           if (data.ingredients) {
@@ -297,7 +385,6 @@
 
               div.innerHTML = `
                 ${name}
-               
                 <span class="toggle-link">+</span>
                 <div class="ingredient-link">${link}</div>
             `;
@@ -315,32 +402,30 @@
         }
 
         document
-          .getElementById("downloadImageBtn")
+          .getElementById("findOnAmazonBtn")
           .addEventListener("click", function () {
-            const img = document.getElementById("productImage");
-            const imageUrl = img.src;
-            fetch(imageUrl, { mode: "cors" })
-              .then((response) => response.blob())
-              .then((blob) => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "product-image.jpg";
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                  window.URL.revokeObjectURL(url);
-                  document.body.removeChild(a);
-                }, 100);
-              })
-              .catch(() => {
-                alert("Cannot download the image");
-              });
+            let productName = document
+              .getElementById("productName")
+              .textContent.trim();
+            if (
+              !productName ||
+              productName === "Unknown Product" ||
+              productName === "No Product Selected" ||
+              productName === "Product Not Found"
+            ) {
+              alert("Can't take product's name to find on Amazon.");
+              return;
+            }
+            let searchUrl =
+              "https://www.amazon.com/s?k=" + encodeURIComponent(productName);
+            window.open(searchUrl, "_blank");
           });
 
-        // Gọi renderProductDetails khi trang tải
         document.addEventListener("DOMContentLoaded", renderProductDetails);
       </script>
     </div>
+
+    <!-- Tách phần script xử lý hình ảnh sang file riêng -->
+    <script src="assets/js/image-search.js"></script>
   </body>
 </html>

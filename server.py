@@ -7,6 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 import json
 from dotenv import load_dotenv
+from pydantic import EmailStr
+from fastapi import BackgroundTasks
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+
 
 # Load environment variables
 load_dotenv()
@@ -21,32 +29,23 @@ app.add_middleware(
 )
 
 # Elasticsearch config
-# ES_CLOUD_URL = os.getenv("ES_CLOUD_URL")
-# ES_API_KEY = os.getenv("ES_API_KEY")
-# if not ES_CLOUD_URL or not ES_API_KEY:
-#     raise ValueError("Missing ES_CLOUD_URL or ES_API_KEY. Please set in .env or environment.")
+
+ES_CLOUD_URL = os.getenv("ES_CLOUD_URL")
+ES_API_KEY = os.getenv("ES_API_KEY")
+if not ES_CLOUD_URL or not ES_API_KEY:
+    raise ValueError("Missing ES_CLOUD_URL or ES_API_KEY. Please set in .env or environment.")
 
 # Gemini API config
-# GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
-# if not GEMINI_API_KEY:
-#     raise ValueError("Missing GOOGLE_API_KEY. Please set in .env or environment.")
+GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("Missing GOOGLE_API_KEY. Please set in .env or environment.")
+genai.configure(api_key=GEMINI_API_KEY)
 
-# genai.configure(api_key=GEMINI_API_KEY)
-
-# Cấu hình kết nối với Elasticsearch localhost
 es = Elasticsearch(
-    hosts=["https://localhost:9200/"],  
-    basic_auth=("elastic", "OYRcPIeE=EB_YELaA=hT"),
-    verify_certs=False,
-    ssl_show_warn=False 
+    [ES_CLOUD_URL],
+    api_key=ES_API_KEY,
+    headers={"Content-Type": "application/json"}
 )
-
-# Cấu hình kết nối với Elasticsearch cloud
-# es = Elasticsearch(
-#     [ES_CLOUD_URL],
-#     api_key=ES_API_KEY,
-#     headers={"Content-Type": "application/json"}
-# )
 
 if not es.ping():
     raise ValueError("Cannot connect to Elasticsearch!")
@@ -64,11 +63,15 @@ class SearchRequest(BaseModel):
     size: int = 20
     sort: str = "default"  # "default", "asc", "desc"
 
+
+class GuideEmailRequest(BaseModel):
+    email: EmailStr
+
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
     try:
         result = es.search(
-            index="products",
+            index="cs_products_data",
             query={
                 "term": {
                     "name.keyword": request.name
@@ -92,7 +95,7 @@ async def ner_and_score(request: NERRequest):
         ingredient_list = []
         for ingredient in ingredients:
             result = es.search(
-                index="products",
+                index="cs_products_data",
                 query={
                     "bool": {
                         "filter": [
@@ -122,7 +125,7 @@ async def ner_and_score(request: NERRequest):
 async def get_all(request: SafetyRequest):
     try:
         result = es.search(
-            index="products",
+            index="cs_products_data",
             query={
                 "term": {
                     "name.keyword": request.name
@@ -200,7 +203,7 @@ async def productsSearch(request: SearchRequest):
         # "default" means don't set sort (Elasticsearch will sort by score)
 
         es_search_kwargs = {
-            "index": "products",
+            "index": "cs_products_data",
             "query": {
                 "bool": {
                     "should": should_clauses,
@@ -262,6 +265,67 @@ async def extract_labels(file: UploadFile = File(...)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server: {str(e)}")
+    
+
+def send_guide_email_task(to_email: str):
+    # Thông tin cấu hình email
+    SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
+    SMTP_USER = os.getenv("SMTP_USER")  # Ví dụ: yourmail@gmail.com
+    SMTP_PASS = os.getenv("SMTP_PASS")  # App password
+    if not (SMTP_USER and SMTP_PASS):
+        print("Missing SMTP_USER or SMTP_PASS in environment!")
+        return
+
+    subject = "Your Free Copy of EWG’s Quick Tips for Safer Personal Care Products"
+
+    text = (
+        "Thank you for requesting EWG’s Quick Tips for Choosing Safer Personal Care Products!\n\n"
+        "Please find your free guide attached to this email.\n\n"
+        "This guide will help you make smarter, healthier choices for you and your family. "
+        "Explore ingredient safety, learn how to spot EWG VERIFIED® products, and see how easy it is to shop with confidence.\n\n"
+        "Stay informed and empowered—visit EWG’s Skin Deep® database any time to search for safety scores and ingredient information on thousands of personal care products.\n\n"
+        "Thank you for supporting EWG’s mission to make safer products available for everyone!\n\n"
+        "With care,\n"
+        "The EWG Team"
+    )
+
+    # Tạo message đa phần (multipart)
+    msg = MIMEMultipart()
+    msg["Subject"] = subject
+    msg["From"] = SMTP_USER
+    msg["To"] = to_email
+    msg.attach(MIMEText(text, "plain", "utf-8"))
+
+    # Đính kèm file PDF
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    pdf_path = os.path.join(BASE_DIR, "front_end", "assets", "ewg-guide.pdf")
+    try:
+        with open(pdf_path, "rb") as f:
+            part = MIMEBase("application", "pdf")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header(
+                "Content-Disposition",
+                f'attachment; filename="EWG-Quick-Tips-Guide.pdf"'
+            )
+            msg.attach(part)
+    except Exception as e:
+        print(f"Error attaching PDF: {e}")
+
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(SMTP_USER, [to_email], msg.as_string())
+    except Exception as e:
+        print(f"Error sending guide email to {to_email}: {e}")
+
+@app.post("/send-guide-email")
+async def send_guide_email(request: GuideEmailRequest, background_tasks: BackgroundTasks):
+    # Gửi email trong background thread
+    background_tasks.add_task(send_guide_email_task, request.email)
+    return {"message": "Thanks! Check your email for the guide."}
 
 if __name__ == "__main__":
     import uvicorn
