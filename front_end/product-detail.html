@@ -17,9 +17,29 @@
   </header>
 
   <div class="main-content">
-    <form action="searching-result.html" method="GET" class="search-container fade-in">
-      <input type="text" name="query" placeholder="Search for a product" class="search-bar">
+    <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm" autocomplete="off">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar" id="textSearchBar">
+      <button type="button" class="image-search-btn" id="openImageModal" title="Search by image">
+        <img src="assets/images/camera-icon.png" alt="Search by image">
+      </button>
     </form>
+
+    <!-- Modal tìm kiếm bằng ảnh (hiện chỉ khi bấm icon) -->
+    <div id="imageSearchModal" class="image-search-modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeImageModal">&times;</span>
+        <h2>Search by Image</h2>
+        <div class="drop-area" id="dropArea">
+          <img src="assets/images/imagesearching.jpg" alt="Drop area" class="drop-image">
+          <p>Drag an image here or <label for="imageInput" class="upload-link">upload a file</label></p>
+          <input type="file" id="imageInput" accept="image/*" style="display:none;">
+        </div>
+        <div class="or-divider">OR</div>
+        <input type="text" id="imageUrlInput" class="image-url-input" placeholder="Paste image URL here">
+        <button type="button" class="image-search-submit" id="submitImageSearch">Search</button>
+        <div id="imageSearchLoading" class="loading" style="display:none;">Processing image...</div>
+      </div>
+    </div>
 
     <div class="hazard-header fade-in delay-1">
       <div class="hazard-title"> </div>
@@ -305,7 +325,11 @@
 
       document.addEventListener('DOMContentLoaded', renderProductDetails);
     </script>
+
   </div>
+
+   <!-- Tách phần script xử lý hình ảnh sang file riêng -->
+  <script src="assets/js/image-search.js"></script>
 </body>
 
 </html>
