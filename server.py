@@ -1,9 +1,6 @@
-# server.py
-from fastapi import FastAPI, HTTPException, status, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from elasticsearch import Elasticsearch
 from pydantic import BaseModel
-from typing import List, Dict
-import logging
 import re
 import os
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,28 +8,28 @@ import google.generativeai as genai
 import json
 from dotenv import load_dotenv
 
-# Tải biến môi trường từ file .env
+# Load environment variables
 load_dotenv()
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Có thể giới hạn chỉ ["http://localhost:5500"] cho an toàn
+    allow_origins=["*"],  # You can restrict this for safety
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Cấu hình kết nối với Elasticsearch
+# Elasticsearch config
 ES_CLOUD_URL = os.getenv("ES_CLOUD_URL")
 ES_API_KEY = os.getenv("ES_API_KEY")
 if not ES_CLOUD_URL or not ES_API_KEY:
-    raise ValueError("Không tìm thấy ES_CLOUD_URL hoặc ES_API_KEY. Vui lòng đặt trong file .env hoặc biến môi trường.")
+    raise ValueError("Missing ES_CLOUD_URL or ES_API_KEY. Please set in .env or environment.")
 
-# Cấu hình Gemini API
+# Gemini API config
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GEMINI_API_KEY:
-    raise ValueError("Không tìm thấy GOOGLE_API_KEY. Vui lòng đặt trong file .env hoặc biến môi trường.")
+    raise ValueError("Missing GOOGLE_API_KEY. Please set in .env or environment.")
 genai.configure(api_key=GEMINI_API_KEY)
 
 es = Elasticsearch(
@@ -41,11 +38,10 @@ es = Elasticsearch(
     headers={"Content-Type": "application/json"}
 )
 
-# Kiểm tra kết nối Elasticsearch
 if not es.ping():
-    raise ValueError("Không thể kết nối tới Elasticsearch!")
+    raise ValueError("Cannot connect to Elasticsearch!")
 
-# Model cho request body
+# Request models
 class SafetyRequest(BaseModel):
     name: str
 
@@ -54,7 +50,9 @@ class NERRequest(BaseModel):
 
 class SearchRequest(BaseModel):
     keyword: str
-    size: int = 10
+    page: int = 1
+    size: int = 20
+    sort: str = "default"  # "default", "asc", "desc"
 
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
@@ -70,9 +68,8 @@ async def safety_check(request: SafetyRequest):
         )
         if not result["hits"]["hits"]:
             return {"message": "Không tìm thấy sản phẩm"}
-        else:
-            hit = result["hits"]["hits"][0]["_source"]
-            return {"name": hit["name"], "score": hit["score"]}
+        hit = result["hits"]["hits"][0]["_source"]
+        return {"name": hit["name"], "score": hit["score"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
@@ -82,7 +79,6 @@ async def ner_and_score(request: NERRequest):
         ingredients = re.split(r',|\s+và\s+|\s+hoặc\s+', request.content)
         if not ingredients:
             return {"ingredients": [], "message": "Không tìm thấy thành phần trong văn bản"}
-        
         ingredient_list = []
         for ingredient in ingredients:
             result = es.search(
@@ -126,26 +122,18 @@ async def get_all(request: SafetyRequest):
         )
         if not result["hits"]["hits"]:
             return {"message": "Không tìm thấy sản phẩm"}
-        else:
-            hit = result["hits"]["hits"][0]["_source"]
-            return hit
+        hit = result["hits"]["hits"][0]["_source"]
+        return hit
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
-
 
 @app.post("/search")
 async def productsSearch(request: SearchRequest):
     try:
-        # Tách từ khóa thành các từ riêng lẻ
         keywords = request.keyword.split()
-        
-        # Xây dựng truy vấn Elasticsearch
         should_clauses = []
-        
-        # Truy vấn cho từng từ khóa riêng lẻ
         for keyword in keywords:
             should_clauses.extend([
-                # Tìm kiếm mờ cho từng từ
                 {
                     "fuzzy": {
                         "name": {
@@ -155,7 +143,6 @@ async def productsSearch(request: SearchRequest):
                         }
                     }
                 },
-                # Tìm kiếm match cho từng từ
                 {
                     "match": {
                         "name": {
@@ -164,7 +151,6 @@ async def productsSearch(request: SearchRequest):
                         }
                     }
                 },
-                # Tìm kiếm prefix cho từng từ
                 {
                     "prefix": {
                         "name": {
@@ -174,14 +160,12 @@ async def productsSearch(request: SearchRequest):
                     }
                 }
             ])
-        
-        # Thêm truy vấn cho toàn bộ từ khóa (ưu tiên cao hơn nếu khớp đầy đủ)
         should_clauses.extend([
             {
                 "match_phrase": {
                     "name": {
                         "query": request.keyword,
-                        "boost": 5.0  # Ưu tiên cao cho khớp chính xác hoặc gần đúng toàn bộ cụm
+                        "boost": 5.0
                     }
                 }
             },
@@ -195,78 +179,72 @@ async def productsSearch(request: SearchRequest):
                 }
             }
         ])
+        from_value = (request.page - 1) * request.size
 
-        # Truy vấn Elasticsearch
-        result = es.search(
-            index="cs_products_data",
-            query={
+        # Handle sorting
+        sort_option = None
+        if request.sort == "asc":
+            sort_option = [{"name.keyword": "asc"}]
+        elif request.sort == "desc":
+            sort_option = [{"name.keyword": "desc"}]
+        # "default" means don't set sort (Elasticsearch will sort by score)
+
+        es_search_kwargs = {
+            "index": "cs_products_data",
+            "query": {
                 "bool": {
                     "should": should_clauses,
-                    "minimum_should_match": 1  # Chỉ cần ít nhất 1 từ khớp
+                    "minimum_should_match": 1
                 }
             },
-            size=request.size
-        )
+            "from_": from_value,
+            "size": request.size
+        }
+        if sort_option:
+            es_search_kwargs["sort"] = sort_option
 
-        # Kiểm tra kết quả
+        result = es.search(**es_search_kwargs)
         if not result["hits"]["hits"]:
             return {"products": [], "message": "Không tìm thấy sản phẩm"}
-        else:
-            products = []
-            for hit in result["hits"]["hits"]:
-                source = hit["_source"]
-                products.append({
-                    "name": source["name"],
-                    "score": source.get("score", 0),
-                    "search_score": hit["_score"],
-                    "img": source.get("link_image", source.get("image_url", source.get("image", "")))
-                })
-            return {"products": products, "total": result["hits"]["total"]["value"]}
-
+        products = []
+        for hit in result["hits"]["hits"]:
+            source = hit["_source"]
+            products.append({
+                "name": source["name"],
+                "score": source.get("score", 0),
+                "search_score": hit["_score"],
+                "link_image": source.get("link_image", "assets/images/product-placeholder.jpg")
+            })
+        return {"products": products, "total": result["hits"]["total"]["value"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
-    
 @app.post("/image-process")
 async def extract_labels(file: UploadFile = File(...)):
     try:
-        # Kiểm tra định dạng file
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="File phải là ảnh (jpg, png, v.v.)")
-        
-        # Kiểm tra kích thước file (giới hạn 10MB)
         content = await file.read()
         if len(content) > 10 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="File quá lớn, tối đa 10MB")
-        
-        # Khởi tạo Gemini model
         model = genai.GenerativeModel("gemini-1.5-flash")
-        
-        # Chuẩn bị ảnh và prompt
         image = {
             "mime_type": file.content_type,
             "data": content
         }
         prompt = "Identify and extract the product name from the label on the bottle in this image. Return the result in JSON format: [{'description': 'product name', 'score': 0.9}, ...]. Ensure the response is valid JSON and contains only the JSON object."
-        
-        # Gọi Gemini API
         response = model.generate_content([prompt, image])
         if not response.text:
             raise HTTPException(status_code=500, detail="Gemini API không trả về kết quả")
-        
-        # Phân tích JSON response
         try:
             labels = json.loads(response.text.strip("```json\n").strip("```"))
         except json.JSONDecodeError:
             raise HTTPException(status_code=500, detail="Không thể phân tích JSON từ Gemini API")
-        
-        # Trả về kết quả
         return {
             "labels": labels,
             "total_labels": len(labels),
             "message": "Xử lý ảnh thành công" if labels else "Không tìm thấy tên sản phẩm trên nhãn"
         }
-    
     except HTTPException:
         raise
     except Exception as e:

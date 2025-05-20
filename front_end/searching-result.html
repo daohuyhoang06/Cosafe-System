@@ -44,7 +44,8 @@
             <option value="asc">Sort: A → Z</option>
             <option value="desc">Sort: Z → A</option>
           </select>
-          <p class="center-text">HERE ARE THE PRODUCTS MATCHING YOUR SEARCH:</p>
+          <div class="searching-title"></div>
+          <p class="center-text"></p>
         </div>
       </div>
       <div class="product-grid"></div>
@@ -52,11 +53,7 @@
 
   </div>
 
-  <div class="pagination">
-    <button id="prevPage" disabled>Previous</button>
-    <span id="pageInfo"></span>
-    <button id="nextPage">Next</button>
-  </div>
+  <div class="pagination" id="pagination"></div>
 
   <div class="background-image"></div>
 
@@ -84,102 +81,33 @@
       window.isCosafeActive = !window.isCosafeActive;
       localStorage.setItem("isCosafeActive", window.isCosafeActive);
       this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
-      renderProducts(currentPage);
+      fetchProducts(query, currentPage)
     });
   </script>
 
   <script>
-    //TO DO: Dùng trực tiếp biến query luôn không phải khai báo. Đây là nội dung được nhập ở trên thanh tìm
-    //kiếm. Sau đó, sẽ trả về danh sách các sản phẩm có tên khớp với query. Danh sách này lưu trữ giống như
-    //biến products giả định phía dưới: chỉ cần img - link_image và title - tên sản phẩm.
-    // const products = [
-    //   { img: "assets/images/product1.jpg", title: "Adorable Baby Natural Baby Lotion" },
-    //   { img: "assets/images/product2.jpg", title: "Common Heir 10% Vitamin C Serum" },
-    //   { img: "assets/images/product3.jpg", title: "Better & Better Fully Charged Toothpaste, Bettermint" },
-    //   { img: "assets/images/product4.jpg", title: "Follain Eye Cream Firm + Brighten" },
-    //   { img: "assets/images/product5.jpg", title: "Just the Goods moisturizing & exfoliating vegan face wash for oily/combination skin" },
-    //   { img: "assets/images/product6.jpg", title: "Lowen's Natural Skin Care Butter Balm" },
-    //   { img: "assets/images/product7.jpg", title: "Sally B's Skin Yummies Sugar Scrub, Lavender (old formulation)" },
-    //   { img: "assets/images/product8.jpg", title: "Sally B's Skin Yummies B Smudged, Smokey Charcoal (2022 formulation)" },
-    //   { img: "assets/images/product9.jpg", title: "isoi Sensitive Skin Essence Hand Cream" },
-    //   { img: "assets/images/product10.png", title: "Akar Skin Soothe Cleansing Milk" },
-    //   { img: "assets/images/product11.jpg", title: "Superbloom Reviving Skin Soak Mist" },
-    //   { img: "assets/images/product12.jpg", title: "DIME Beauty Super Skin Toner" },
-    //   { img: "assets/images/product13.jpg", title: "Lowen's Natural Skin Care Shampoo is Betta!" },
-    //   { img: "assets/images/product14.jpg", title: "Lowen's Natural Skin Care Bum Balm Blues Diaper Balm" },
-    //   { img: "assets/images/product15.jpg", title: "Sally B's Skin Yummies EcoBody, Lavender" },
-    // ];
     let products = [];
     let totalPages = 1;
-    const itemsPerPage = 10;
+    let totalProducts = 0;
+    const itemsPerPage = 20;
     let currentPage = 1;
     let currentSort = 'default';
 
     const productGrid = document.querySelector('.product-grid');
-    const prevBtn = document.getElementById('prevPage');
-    const nextBtn = document.getElementById('nextPage');
-    const pageInfo = document.getElementById('pageInfo');
 
     const hazardTitle = document.querySelector('.hazard-title');
+    const searchingTitle = document.querySelector('.searching-title');
 
 
 
-    // // Hàm gọi API tìm sản phẩm 
-    // async function fetchProducts(query) {
-    //   console.log("Gọi fetchProducts với query:", query);
-    //   try {
-    //     const response = await fetch('http://127.0.0.1:8000/safety', {
-    //       method: 'POST',
-    //       headers: { 'Content-Type': 'application/json' },
-    //       body: JSON.stringify({ name: query })
-    //     });
-
-    //     if (!response.ok) {
-    //       throw new Error(`HTTP error! Status: ${response.status}`);
-    //     }
-
-    //     const data = await response.json();
-    //     console.log("Dữ liệu trả về từ API:", data);
-
-    //     // Xử lý trường hợp "Không tìm thấy sản phẩm"
-    //     if (data.message === "Không tìm thấy sản phẩm") {
-    //       productGrid.innerHTML = '<p class="no-results">Không tìm thấy sản phẩm phù hợp với tìm kiếm của bạn.</p>';
-    //       products = [];
-    //       updatePagination();
-    //       return;
-    //     }
-
-    //     // Chuyển đổi dữ liệu API thành định dạng hiển thị
-    //     // Sản phẩm đơn lẻ được chuyển thành mảng chứa 1 sản phẩm
-    //     products = [{
-    //       title: data.name || query,
-    //       score: data.score || 0,
-    //       img: `assets/images/product-placeholder.jpg` // Ảnh mặc định
-    //     }];
-
-    //     updatePagination();
-    //     renderProducts(currentPage);
-
-    //     // Cập nhật tiêu đề hiển thị
-    //     if (data.name) {
-    //       hazardTitle.textContent = data.name;
-    //     }
-
-    //   } catch (error) {
-    //     console.error('Error fetching products:', error);
-    //     productGrid.innerHTML = '<p class="error-message">Lỗi khi tải dữ liệu sản phẩm. Vui lòng thử lại.</p>';
-    //     products = [];
-    //     updatePagination();
-    //   }
-    // }
 
     // Hàm gọi API tìm sản phẩm 
-    async function fetchProducts(query) {
+    async function fetchProducts(query, currentPage) {
       console.log("Gọi fetchProducts với query:", query);
 
       try {
         // Thử gọi API /safety trước
-        const safetyResponse = await fetch('http://127.0.0.1:8000/get-all', {
+        const safetyResponse = await fetch('http://127.0.0.1:8000/safety', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: query })
@@ -202,7 +130,7 @@
           }];
 
           // Cập nhật giao diện
-          hazardTitle.textContent = `Kết quả tìm kiếm cho: "${query}" (1 sản phẩm)`;
+          searchingTitle.textContent = `Search results for: "${query}" (1 product)`;
           updatePagination();
           renderProducts(currentPage);
           return;
@@ -212,7 +140,7 @@
         const searchResponse = await fetch('http://127.0.0.1:8000/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keyword: query, size: 15 })
+          body: JSON.stringify({ keyword: query, page: currentPage, size: itemsPerPage, sort: currentSort })
         });
 
         if (!searchResponse.ok) {
@@ -224,7 +152,7 @@
 
         // Xử lý trường hợp "Không tìm thấy sản phẩm"
         if (searchData.message === "Không tìm thấy sản phẩm" || (searchData.products && searchData.products.length === 0)) {
-          productGrid.innerHTML = '<p class="no-results">Không tìm thấy sản phẩm phù hợp với tìm kiếm của bạn.</p>';
+          productGrid.innerHTML = '<p class="no-results">No products matched your search.</p>';
           products = [];
           updatePagination();
           return;
@@ -235,50 +163,33 @@
           title: product.name,
           score: product.score || 0,
           search_score: product.search_score,
-          img: product.link_image || 'assets/images/product-placeholder.jpg'
+          img: product.link_image || `assets/images/product-placeholder.jpg` // Ảnh mặc định
         }));
 
         // Cập nhật tiêu đề hiển thị
-        hazardTitle.textContent = `Kết quả tìm kiếm cho: "${query}" (${searchData.total || products.length} sản phẩm)`;
+        totalProducts = searchData.total || products.length;
+        searchingTitle.textContent = `Search results for: "${query}" (${totalProducts} products)`;
         updatePagination();
         renderProducts(currentPage);
 
       } catch (error) {
         console.error('Error fetching products:', error);
-        productGrid.innerHTML = '<p class="error-message">Lỗi khi tải dữ liệu sản phẩm. Vui lòng thử lại.</p>';
+        productGrid.innerHTML = '<p class="error-message">Error loading product data. Please try again.</p>';
         products = [];
         updatePagination();
       }
     }
 
     function updatePagination() {
-      totalPages = Math.ceil(products.length / itemsPerPage) || 1;
-      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-      prevBtn.disabled = currentPage === 1;
-      nextBtn.disabled = currentPage === totalPages || products.length === 0;
+      totalPages = Math.ceil(totalProducts / itemsPerPage) || 1;
+      renderPagination();
     }
 
 
     function renderProducts(page) {
       productGrid.innerHTML = '';
 
-      let sortedProducts = [...products];
-
-      const start = (page - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-
-      let paginatedItems = null;
-      if (currentSort === 'asc') {
-        sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
-        paginatedItems = sortedProducts.slice(start, end);
-      } else if (currentSort === 'desc') {
-        sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
-        paginatedItems = sortedProducts.slice(start, end);
-      } else {
-        paginatedItems = products.slice(start, end);
-      }
-
-      paginatedItems.forEach((prod, index) => {
+      products.forEach((prod, index) => {
         const card = document.createElement('div');
         card.classList.add('product-card');
 
@@ -312,34 +223,80 @@
           }
         });
       }
-
-      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-      prevBtn.disabled = currentPage === 1;
-      nextBtn.disabled = currentPage === totalPages;
     }
 
-    prevBtn.addEventListener('click', () => {
-      if (currentPage > 1) {
-        currentPage--;
-        renderProducts(currentPage);
-      }
-    });
+    function renderPagination() {
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
 
-    nextBtn.addEventListener('click', () => {
-      if (currentPage < totalPages) {
-        currentPage++;
-        renderProducts(currentPage);
+      // Nút First
+      const firstBtn = document.createElement('button');
+      firstBtn.textContent = 'First';
+      firstBtn.disabled = currentPage === 1;
+      firstBtn.onclick = () => { currentPage = 1; fetchProducts(query, currentPage); };
+      pagination.appendChild(firstBtn);
+
+      // Nút Previous
+      const prevBtn = document.createElement('button');
+      prevBtn.textContent = 'Previous';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; fetchProducts(query, currentPage); } };
+      pagination.appendChild(prevBtn);
+
+      // Số trang dạng ... 2 3 [4] 5 6 ...
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, currentPage + 2);
+
+      if (startPage > 1) {
+        const dot = document.createElement('span');
+        dot.textContent = '...';
+        pagination.appendChild(dot);
       }
-    });
+
+      for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add('active-page');
+        btn.disabled = i === currentPage;
+        btn.onclick = () => { currentPage = i; fetchProducts(query, currentPage); };
+        pagination.appendChild(btn);
+      }
+
+      if (endPage < totalPages) {
+        const dot = document.createElement('span');
+        dot.textContent = '...';
+        pagination.appendChild(dot);
+      }
+
+      // Nút Next
+      const nextBtn = document.createElement('button');
+      nextBtn.textContent = 'Next';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; fetchProducts(query, currentPage); } };
+      pagination.appendChild(nextBtn);
+
+      // Nút Last
+      const lastBtn = document.createElement('button');
+      lastBtn.textContent = 'Last';
+      lastBtn.disabled = currentPage === totalPages;
+      lastBtn.onclick = () => { currentPage = totalPages; fetchProducts(query, currentPage); };
+      pagination.appendChild(lastBtn);
+
+      // Thông tin tổng
+      const info = document.createElement('span');
+      info.textContent = ` Page ${currentPage} / ${totalPages} `;
+      info.style.marginLeft = '10px';
+      pagination.appendChild(info);
+    }
 
     document.getElementById("sortOption").addEventListener("change", function () {
       currentSort = this.value;
       currentPage = 1;
-      renderProducts(currentPage);
+      fetchProducts(query, currentPage);
     });
 
 
-    renderProducts(currentPage);
+    fetchProducts(query, currentPage);
 
 
     function getColorForProduct(productName) {
@@ -363,9 +320,9 @@
     // Gọi API và render khi trang được load
     (async () => {
       if (query) {
-        await fetchProducts(query);
+        await fetchProducts(query, currentPage);
       } else {
-        productGrid.innerHTML = '<p class="no-query">Vui lòng nhập từ khóa tìm kiếm để xem kết quả.</p>';
+        productGrid.innerHTML = '<p class="no-query">Please enter a search keyword to view the results..</p>';
         console.warn("Không có query trong URL, không fetch được sản phẩm.");
       }
     })();

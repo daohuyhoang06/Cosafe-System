@@ -63,52 +63,90 @@
       </div>
 
       <div class="image">
-        <img id="productImage" alt="Product">
+        <div class="product-image-wrapper">
+          <img id="productImage" alt="Product">
+        </div>
+        <button id="downloadImageBtn" type="button" style="margin-top:12px;">Download Image</button>
       </div>
     </div>
-
-    <script src="script.js"></script>
-
-
-
-
-
-
-
 
     <div class="background-image"></div>
 
     <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const query = urlParams.get('query');
-      const title = urlParams.get('title');
-      if (query) {
-        document.querySelector('.search-bar').value = query;
-      }
-    </script>
+      // Biến toàn cục
+      window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true";
+      window.currentProductData = null;
+      window.originalIngredientLineText = '';
+      let ingredientLineElement = null;
 
-    <script>
       const button = document.getElementById("activateBtn");
-      window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true"
       button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
 
       button.addEventListener("click", function () {
         window.isCosafeActive = !window.isCosafeActive;
         localStorage.setItem("isCosafeActive", window.isCosafeActive);
         this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
-
+        // Khi bật thì tô màu, tắt thì trả lại bản gốc
         if (window.isCosafeActive) {
           renderIngredientLine();
-        } else {
+        } else if (ingredientLineElement && window.originalIngredientLineText) {
           ingredientLineElement.textContent = window.originalIngredientLineText;
         }
       });
-    </script>
 
-    <script>
-      //TO DO: Dùng trực tiếp biến title luôn không phải khai báo. Đây là tên sản phẩm chính xác không sai một kí tự nào.
-      //Sau đó, sẽ trả về thông tin chi tiết của sản phẩm duy nhất có tên khớp với title dưới dạng JSON như dưới đây.
-      //Chỉ cần thay dữ liệu của biến data thành dữ liệu của sản phẩm đó để hiển thị.
+      // Tô màu cho ingredientLine
+      function renderIngredientLine() {
+        if (!ingredientLineElement || !window.currentProductData) return;
+
+        const data = window.currentProductData;
+        const ingredients = window.originalIngredientLineText.split(',').map(i => i.trim());
+
+        ingredientLineElement.innerHTML = '';
+
+        ingredients.forEach((ingredient, index) => {
+          const words = ingredient.split(' ');
+
+          words.forEach((word, wordIndex) => {
+            const span = document.createElement('span');
+            span.textContent = wordIndex < words.length - 1 ? word + '\u00A0' : word;
+
+            const color = getColorForIngredient(ingredient, data);
+            if (color) {
+              span.style.backgroundColor = color;
+            }
+
+            span.style.display = 'inline-block';
+            ingredientLineElement.appendChild(span);
+          });
+
+          if (index < ingredients.length - 1) {
+            ingredientLineElement.appendChild(document.createTextNode(',\u00A0'));
+          }
+        });
+      }
+
+      function getColorForIngredient(ingredient, data) {
+        if (!data.ingredients || !data.ingredients[ingredient]) {
+          return null;
+        }
+        const score = data.ingredients[ingredient].score;
+        if (score === undefined) {
+          return null;
+        }
+        if (score >= 0 && score <= 2) return "#b9f5cc";   // green nhạt
+        if (score >= 3 && score <= 6) return "#fffab8";   // yellow nhạt
+        if (score >= 7 && score <= 10) return "#ffd6d6";  // red nhạt
+        return null;
+      }
+
+      // Lấy param và fetch data
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('query');
+      const title = urlParams.get('title');
+      if (query) {
+        document.querySelector('.search-bar').value = query;
+      }
+
       async function fetchProductData(productName) {
         try {
           const response = await fetch('http://localhost:8000/get-all', {
@@ -140,7 +178,7 @@
       async function renderProductDetails() {
         if (!title) {
           document.getElementById("productName").textContent = "No Product Selected";
-          document.querySelector('.product').innerHTML = '<p class="error-message">No product selected. Please choose a product.</p>';
+          document.querySelector('.product').innerHTML = '<div class="error-message"></div>';
           return;
         }
 
@@ -149,9 +187,12 @@
 
         if (!data) {
           document.getElementById("productName").textContent = "Product Not Found";
-          document.querySelector('.product').innerHTML = '<p class="error-message">Product not found. Please try another product.</p>';
+          document.querySelector('.product').innerHTML = '<div class="error-message"></div>';
           return;
         }
+
+        // Lưu lại data sản phẩm hiện tại để dùng lại
+        window.currentProductData = data;
 
         // Hiển thị tên sản phẩm
         document.getElementById('productName').textContent = data.name || 'Unknown Product';
@@ -161,12 +202,12 @@
 
         // Hiển thị ảnh điểm số (dựa trên score, nếu có)
         document.getElementById('scoreImage').src = data.score !== undefined
-          ? `assets/images/score-${Math.round(data.score * 10)}.png`
+          ? `assets/images/score-${Math.round(data.score * 1)}.png`
           : 'assets/images/score-na.png';
 
-        // Hiển thị mối quan ngại (ingredient_concerns) - giả định tạm thời không có dữ liệu này
+        // Hiển thị mối quan ngại (ingredient_concerns)
         const concernsDiv = document.getElementById('concernsList');
-        concernsDiv.innerHTML = ''; // Xóa nội dung cũ
+        concernsDiv.innerHTML = '';
         if (data.ingredient_concerns) {
           Object.entries(data.ingredient_concerns).forEach(([label, level]) => {
             const row = document.createElement('div');
@@ -185,28 +226,32 @@
         }
 
         // Hiển thị danh sách thành phần trong ingredientLine
-        const ingredientLineElement = document.getElementById('ingredientLine');
+        ingredientLineElement = document.getElementById('ingredientLine');
         ingredientLineElement.textContent = data.ingredients
           ? Object.keys(data.ingredients).join(',\u00A0')
           : 'No ingredients available';
 
         window.originalIngredientLineText = ingredientLineElement.textContent;
-        if (localStorage.getItem("isCosafeActive") === "true") {
-          renderIngredientLine(data);
+        // Khi tải lên, hiện đúng trạng thái Cosafe
+        if (window.isCosafeActive) {
+          renderIngredientLine();
         }
 
         // Hiển thị chi tiết thành phần trong ingredientList
         const ingredientsDiv = document.getElementById('ingredientList');
-        ingredientsDiv.innerHTML = ''; // Xóa nội dung cũ
+        ingredientsDiv.innerHTML = '';
         if (data.ingredients) {
           Object.entries(data.ingredients).forEach(([name, info]) => {
             const div = document.createElement('div');
             div.className = 'ingredient';
+
+            const link = info.link ? `<a href="${info.link}" target="_blank">More Information</a>` : 'No additional information available.';
+
             div.innerHTML = `
                 ${name}
-                <span class="score">Score: ${info.score !== undefined ? info.score : 'N/A'}</span>
+               
                 <span class="toggle-link">+</span>
-                <div class="ingredient-link">No additional information available.</div>
+                <div class="ingredient-link">${link}</div>
             `;
             div.querySelector('.toggle-link').addEventListener('click', () => {
               div.classList.toggle('open');
@@ -216,64 +261,34 @@
         } else {
           ingredientsDiv.innerHTML = '<p>No ingredient details available.</p>';
         }
-
-        function renderIngredientLine(data) {
-          const container = document.getElementById('ingredientLine');
-          const ingredients = window.originalIngredientLineText.split(',').map(i => i.trim());
-
-          container.innerHTML = '';
-
-          ingredients.forEach((ingredient, index) => {
-            const words = ingredient.split(' ');
-
-            words.forEach((word, wordIndex) => {
-              const span = document.createElement('span');
-              span.textContent = wordIndex < words.length - 1 ? word + '\u00A0' : word;
-
-              const color = getColorForIngredient(ingredient, data);
-              if (color) {
-                span.style.backgroundColor = color;
-              }
-
-              span.style.display = 'inline-block';
-              container.appendChild(span);
-            });
-
-            if (index < ingredients.length - 1) {
-              container.appendChild(document.createTextNode(',\u00A0'));
-            }
-          });
-        }
-
-        function getColorForIngredient(ingredient, data) {
-          // Tô màu dựa trên score của thành phần
-          if (!data.ingredients || !data.ingredients[ingredient]) {
-            return null;
-          }
-
-          const score = data.ingredients[ingredient].score;
-          if (score === undefined) {
-            return null;
-          }
-
-          // Quy tắc tô màu: 
-          // - Score < 0.4: đỏ (nguy hiểm)
-          // - Score 0.4 - 0.7: vàng (trung bình)
-          // - Score > 0.7: xanh (an toàn)
-          if (score < 0.4) return 'red';
-          if (score <= 0.7) return 'yellow';
-          return 'green';
-        }
       }
+
+      document.getElementById("downloadImageBtn").addEventListener("click", function() {
+        const img = document.getElementById("productImage");
+        const imageUrl = img.src;
+        fetch(imageUrl, {mode: "cors"})
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "product-image.jpg";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+            }, 100);
+          })
+          .catch(() => {
+            alert("Cannot download the image");
+          });
+      });
 
       // Gọi renderProductDetails khi trang tải
       document.addEventListener('DOMContentLoaded', renderProductDetails);
     </script>
-
-
-
-
-
+  </div>
 </body>
 
 </html>
