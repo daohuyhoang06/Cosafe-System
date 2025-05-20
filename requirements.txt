@@ -6,3 +6,4 @@ bcrypt
 elassticsearch
 python-multipart
 starlette
+google.generativeai

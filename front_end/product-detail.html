@@ -1,286 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWG Skin Deep</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EWG Skin Deep</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-</head>
-
-<body>
-  <header class="header">
-    <div class="logo">
-      <a href="home-page.html" class="logo-link">Cosafe System</a>
-    </div>
-  </header>
-
-  <div class="main-content">
-    <form action="searching-result.html" method="GET" class="search-container fade-in">
-      <input type="text" name="query" placeholder="Search for a product" class="search-bar">
-    </form>
-
-    <div class="hazard-header fade-in delay-1">
-      <div class="hazard-title"> </div>
-      <div class="hazard-links">
-        <a href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
-        <span class="divider">|</span>
-        <a href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <a href="home-page.html" class="logo-link">Cosafe System</a>
       </div>
-    </div>
+    </header>
 
-    <div class="hazard-container">
-      <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
-      <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
-    </div>
+    <div class="main-content">
+      <form
+        action="searching-result.html"
+        method="GET"
+        class="search-container fade-in"
+      >
+        <input
+          type="text"
+          name="query"
+          placeholder="Search for a product"
+          class="search-bar"
+        />
+      </form>
 
-    <div class="product">
-      <div class="score-image">
-        <img id="scoreImage" alt="Score">
-      </div>
-      <div class="info">
-        <h1 id="productName"></h1>
-
-        <section class="concerns">
-          <h2>Ingredient concerns</h2>
-          <p>See how this product scores for common concerns.</p>
-          <div id="concernsList" class="concerns-table"></div>
-        </section>
-
-        <section class="ingredients">
-          <h2>Ingredient lists</h2>
-          <p>Activate Cosafe to score ingredients. They are scored based on their formulation and concentration in this
-            product.</p>
-          <p id="ingredientLine" class="ingredient-line"></p>
-        </section>
-
-        <section class="ingredients">
-          <h2>Ingredient details</h2>
-          <p>Click on an ingredient for more information.</p>
-          <div id="ingredientList"></div>
-        </section>
+      <div class="hazard-header fade-in delay-1">
+        <div class="hazard-title"></div>
+        <div class="hazard-links">
+          <a href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+          <span class="divider">|</span>
+          <a href="learn-more-ewg-verified.html"
+            >LEARN MORE ABOUT EWG VERIFIED®</a
+          >
+        </div>
       </div>
 
-      <div class="image">
-        <img id="productImage" alt="Product">
+      <div class="hazard-container">
+        <img
+          src="assets/images/hazard-score-range.png"
+          alt="Hazard Score Range"
+          class="hazard-img fade-in delay-2"
+        />
+        <button class="activate-btn fade-in delay-3" id="activateBtn">
+          Activate Cosafe
+        </button>
       </div>
-    </div>
 
-    <script src="script.js"></script>
+      <div class="product">
+        <div class="score-image">
+          <img id="scoreImage" alt="Score" />
+        </div>
+        <div class="info">
+          <h1 id="productName"></h1>
 
+          <section class="concerns">
+            <h2>Ingredient concerns</h2>
+            <p>See how this product scores for common concerns.</p>
+            <div id="concernsList" class="concerns-table"></div>
+          </section>
 
+          <section class="ingredients">
+            <h2>Ingredient lists</h2>
+            <p>
+              Activate Cosafe to score ingredients. They are scored based on
+              their formulation and concentration in this product.
+            </p>
+            <p id="ingredientLine" class="ingredient-line"></p>
+          </section>
 
+          <section class="ingredients">
+            <h2>Ingredient details</h2>
+            <p>Click on an ingredient for more information.</p>
+            <div id="ingredientList"></div>
+          </section>
+        </div>
 
+        <div class="image">
+          <div class="product-image-wrapper">
+            <img id="productImage" alt="Product" />
+          </div>
+          <button id="downloadImageBtn" type="button" style="margin-top: 12px">
+            Download Image
+          </button>
+        </div>
+      </div>
 
+      <div class="background-image"></div>
 
+      <script>
+        // Biến toàn cục
+        window.isCosafeActive =
+          localStorage.getItem("isCosafeActive") === "true";
+        window.currentProductData = null;
+        window.originalIngredientLineText = "";
+        let ingredientLineElement = null;
 
+        const button = document.getElementById("activateBtn");
+        button.textContent = window.isCosafeActive
+          ? "Deactivate Cosafe"
+          : "Activate Cosafe";
 
-    <div class="background-image"></div>
-
-    <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const query = urlParams.get('query');
-      const title = urlParams.get('title');
-      if (query) {
-        document.querySelector('.search-bar').value = query;
-      }
-    </script>
-
-    <script>
-      const button = document.getElementById("activateBtn");
-      window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true"
-      button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
-
-      button.addEventListener("click", function () {
-        window.isCosafeActive = !window.isCosafeActive;
-        localStorage.setItem("isCosafeActive", window.isCosafeActive);
-        this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
-
-        if (window.isCosafeActive) {
-          renderIngredientLine(data);
-        } else {
-          ingredientLineElement.textContent = window.originalIngredientLineText;
-        }
-      });
-    </script>
-
-    <script>
-      //TO DO: Dùng trực tiếp biến title luôn không phải khai báo. Đây là tên sản phẩm chính xác không sai một kí tự nào.
-      //Sau đó, sẽ trả về thông tin chi tiết của sản phẩm duy nhất có tên khớp với title dưới dạng JSON như dưới đây.
-      //Chỉ cần thay dữ liệu của biến data thành dữ liệu của sản phẩm đó để hiển thị.
-      async function fetchProductData(productName) {
-        try {
-          const response = await fetch('http://localhost:8000/get-all', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: productName }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        button.addEventListener("click", function () {
+          window.isCosafeActive = !window.isCosafeActive;
+          localStorage.setItem("isCosafeActive", window.isCosafeActive);
+          this.textContent = window.isCosafeActive
+            ? "Deactivate Cosafe"
+            : "Activate Cosafe";
+          // Khi bật thì tô màu, tắt thì trả lại bản gốc
+          if (window.isCosafeActive) {
+            renderIngredientLine();
+          } else if (
+            ingredientLineElement &&
+            window.originalIngredientLineText
+          ) {
+            ingredientLineElement.textContent =
+              window.originalIngredientLineText;
           }
+        });
 
-          const data = await response.json();
+        // Tô màu cho ingredientLine
+        function renderIngredientLine() {
+          if (!ingredientLineElement || !window.currentProductData) return;
 
-          if (data.message === 'Không tìm thấy sản phẩm') {
-            console.warn('Product not found:', productName);
-            return null;
-          }
+          const data = window.currentProductData;
+          const ingredients = window.originalIngredientLineText
+            .split(",")
+            .map((i) => i.trim());
 
-          return data; // Dữ liệu sản phẩm: { name, score, ingredients, ... }
-        } catch (error) {
-          console.error('Error fetching product data:', error);
-          return null;
-        }
-      }
-
-      async function renderProductDetails() {
-        if (!title) {
-          document.getElementById("productName").textContent = "No Product Selected";
-          document.querySelector('.product').innerHTML = '<p class="error-message">No product selected. Please choose a product.</p>';
-          return;
-        }
-
-        // Fetch product data
-        const data = await fetchProductData(title);
-
-        if (!data) {
-          document.getElementById("productName").textContent = "Product Not Found";
-          document.querySelector('.product').innerHTML = '<p class="error-message">Product not found. Please try another product.</p>';
-          return;
-        }
-
-        // Hiển thị tên sản phẩm
-        document.getElementById('productName').textContent = data.name || 'Unknown Product';
-
-        // Hiển thị ảnh sản phẩm (nếu có, nếu không dùng placeholder)
-        document.getElementById('productImage').src = data.link_image || 'assets/images/product-placeholder.jpg';
-
-        // Hiển thị ảnh điểm số (dựa trên score, nếu có)
-        document.getElementById('scoreImage').src = data.score !== undefined
-          ? `assets/images/score-${Math.round(data.score * 1)}.png`
-          : 'assets/images/score-na.png';
-
-        // Hiển thị mối quan ngại (ingredient_concerns) - giả định tạm thời không có dữ liệu này
-        const concernsDiv = document.getElementById('concernsList');
-        concernsDiv.innerHTML = ''; // Xóa nội dung cũ
-        if (data.ingredient_concerns) {
-          Object.entries(data.ingredient_concerns).forEach(([label, level]) => {
-            const row = document.createElement('div');
-            row.className = 'concern-row';
-            row.innerHTML = `
-                <div class="concern-level">
-                    <span class="dot ${level}"></span>
-                    <span class="level-text">${level}</span>
-                </div>
-                <div class="concern-label">${label}</div>
-            `;
-            concernsDiv.appendChild(row);
-          });
-        } else {
-          concernsDiv.innerHTML = '<p>No ingredient concerns available.</p>';
-        }
-
-        // Hiển thị danh sách thành phần trong ingredientLine
-        const ingredientLineElement = document.getElementById('ingredientLine');
-        ingredientLineElement.textContent = data.ingredients
-          ? Object.keys(data.ingredients).join(',\u00A0')
-          : 'No ingredients available';
-
-        window.originalIngredientLineText = ingredientLineElement.textContent;
-        if (localStorage.getItem("isCosafeActive") === "true") {
-          renderIngredientLine(data);
-        }
-
-        // Hiển thị chi tiết thành phần trong ingredientList
-       const ingredientsDiv = document.getElementById('ingredientList');
-        ingredientsDiv.innerHTML = ''; // Xóa nội dung cũ
-
-        if (data.ingredients) {
-          Object.entries(data.ingredients).forEach(([name, info]) => {
-            const div = document.createElement('div');
-            div.className = 'ingredient';
-
-            // Gán link nếu có, không thì để chuỗi rỗng
-            const link = info.link ? `<a href="${info.link}" target="_blank">Xem chi tiết</a>` : 'No additional information available.';
-
-            div.innerHTML = `
-              ${name}
-              <span class="score">Score: ${info.score !== undefined ? info.score : 'N/A'}</span>
-              <span class="toggle-link">+</span>
-              <div class="ingredient-link">${link}</div>
-            `;
-
-            div.querySelector('.toggle-link').addEventListener('click', () => {
-              div.classList.toggle('open');
-            });
-
-            ingredientsDiv.appendChild(div);
-          });
-        } else {
-          ingredientsDiv.innerHTML = '<p>No ingredient details available.</p>';
-        }
-
-
-        function renderIngredientLine(data) {
-          const container = document.getElementById('ingredientLine');
-          const ingredients = window.originalIngredientLineText.split(',').map(i => i.trim());
-
-          container.innerHTML = '';
+          ingredientLineElement.innerHTML = "";
 
           ingredients.forEach((ingredient, index) => {
-            const words = ingredient.split(' ');
+            const words = ingredient.split(" ");
 
             words.forEach((word, wordIndex) => {
-              const span = document.createElement('span');
-              span.textContent = wordIndex < words.length - 1 ? word + '\u00A0' : word;
+              const span = document.createElement("span");
+              span.textContent =
+                wordIndex < words.length - 1 ? word + "\u00A0" : word;
 
               const color = getColorForIngredient(ingredient, data);
               if (color) {
                 span.style.backgroundColor = color;
               }
 
-              span.style.display = 'inline-block';
-              container.appendChild(span);
+              span.style.display = "inline-block";
+              ingredientLineElement.appendChild(span);
             });
 
             if (index < ingredients.length - 1) {
-              container.appendChild(document.createTextNode(',\u00A0'));
+              ingredientLineElement.appendChild(
+                document.createTextNode(",\u00A0")
+              );
             }
           });
         }
 
         function getColorForIngredient(ingredient, data) {
-          // Tô màu dựa trên score của thành phần
           if (!data.ingredients || !data.ingredients[ingredient]) {
             return null;
           }
-
           const score = data.ingredients[ingredient].score;
           if (score === undefined) {
             return null;
           }
-
-         
-          if (score >= 0 && score <= 2) return "green";
-          if (score >= 3 && score <= 6) return "yellow";
-          if (score >= 7 && score <= 10) return "red";
+          if (score >= 0 && score <= 2) return "#b9f5cc"; // green nhạt
+          if (score >= 3 && score <= 6) return "#fffab8"; // yellow nhạt
+          if (score >= 7 && score <= 10) return "#ffd6d6"; // red nhạt
           return null;
         }
-      }
-      
 
-      // Gọi renderProductDetails khi trang tải
-      document.addEventListener('DOMContentLoaded', renderProductDetails);
-    </script>
+        // Lấy param và fetch data
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get("query");
+        const title = urlParams.get("title");
+        if (query) {
+          document.querySelector(".search-bar").value = query;
+        }
 
+        async function fetchProductData(productName) {
+          try {
+            const response = await fetch("http://localhost:8000/get-all", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name: productName }),
+            });
 
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
+            const data = await response.json();
 
+            if (data.message === "Không tìm thấy sản phẩm") {
+              console.warn("Product not found:", productName);
+              return null;
+            }
 
-</body>
+            return data; // Dữ liệu sản phẩm: { name, score, ingredients, ... }
+          } catch (error) {
+            console.error("Error fetching product data:", error);
+            return null;
+          }
+        }
 
+        async function renderProductDetails() {
+          if (!title) {
+            document.getElementById("productName").textContent =
+              "No Product Selected";
+            document.querySelector(".product").innerHTML =
+              '<div class="error-message"></div>';
+            return;
+          }
+
+          // Fetch product data
+          const data = await fetchProductData(title);
+
+          if (!data) {
+            document.getElementById("productName").textContent =
+              "Product Not Found";
+            document.querySelector(".product").innerHTML =
+              '<div class="error-message"></div>';
+            return;
+          }
+
+          // Lưu lại data sản phẩm hiện tại để dùng lại
+          window.currentProductData = data;
+
+          // Hiển thị tên sản phẩm
+          document.getElementById("productName").textContent =
+            data.name || "Unknown Product";
+
+          // Hiển thị ảnh sản phẩm (nếu có, nếu không dùng placeholder)
+          document.getElementById("productImage").src =
+            data.link_image || "assets/images/product-placeholder.jpg";
+
+          // Hiển thị ảnh điểm số (dựa trên score, nếu có)
+          document.getElementById("scoreImage").src =
+            data.score !== undefined
+              ? `assets/images/score-${Math.round(data.score * 1)}.png`
+              : "assets/images/score-na.png";
+
+          // Hiển thị mối quan ngại (ingredient_concerns)
+          const concernsDiv = document.getElementById("concernsList");
+          concernsDiv.innerHTML = "";
+          if (data.ingredient_concerns) {
+            Object.entries(data.ingredient_concerns).forEach(
+              ([label, level]) => {
+                const row = document.createElement("div");
+                row.className = "concern-row";
+                row.innerHTML = `
+                <div class="concern-level">
+                    <span class="dot ${level}"></span>
+                    <span class="level-text">${level}</span>
+                </div>
+                <div class="concern-label">${label}</div>
+            `;
+                concernsDiv.appendChild(row);
+              }
+            );
+          } else {
+            concernsDiv.innerHTML = "<p>No ingredient concerns available.</p>";
+          }
+
+          // Hiển thị danh sách thành phần trong ingredientLine
+          ingredientLineElement = document.getElementById("ingredientLine");
+          ingredientLineElement.textContent = data.ingredients
+            ? Object.keys(data.ingredients).join(",\u00A0")
+            : "No ingredients available";
+
+          window.originalIngredientLineText = ingredientLineElement.textContent;
+          // Khi tải lên, hiện đúng trạng thái Cosafe
+          if (window.isCosafeActive) {
+            renderIngredientLine();
+          }
+
+          // Hiển thị chi tiết thành phần trong ingredientList
+          const ingredientsDiv = document.getElementById("ingredientList");
+          ingredientsDiv.innerHTML = "";
+          if (data.ingredients) {
+            Object.entries(data.ingredients).forEach(([name, info]) => {
+              const div = document.createElement("div");
+              div.className = "ingredient";
+
+              const link = info.link
+                ? `<a href="${info.link}" target="_blank">More Information</a>`
+                : "No additional information available.";
+
+              div.innerHTML = `
+                ${name}
+               
+                <span class="toggle-link">+</span>
+                <div class="ingredient-link">${link}</div>
+            `;
+              div
+                .querySelector(".toggle-link")
+                .addEventListener("click", () => {
+                  div.classList.toggle("open");
+                });
+              ingredientsDiv.appendChild(div);
+            });
+          } else {
+            ingredientsDiv.innerHTML =
+              "<p>No ingredient details available.</p>";
+          }
+        }
+
+        document
+          .getElementById("downloadImageBtn")
+          .addEventListener("click", function () {
+            const img = document.getElementById("productImage");
+            const imageUrl = img.src;
+            fetch(imageUrl, { mode: "cors" })
+              .then((response) => response.blob())
+              .then((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "product-image.jpg";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                }, 100);
+              })
+              .catch(() => {
+                alert("Cannot download the image");
+              });
+          });
+
+        // Gọi renderProductDetails khi trang tải
+        document.addEventListener("DOMContentLoaded", renderProductDetails);
+      </script>
+    </div>
+  </body>
 </html>
