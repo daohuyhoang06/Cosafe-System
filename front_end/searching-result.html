@@ -4,9 +4,405 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EWG Skin Deep</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <title>Cosafe System</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to bottom, #fdecdc, #ffffff);
+      color: #333;
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 100px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 20px 40px;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .logo-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .main-content {
+      text-align: center;
+      padding: 40px 20px 80px;
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .search-container {
+      position: relative;
+      width: 90%;
+      max-width: 500px;
+      margin: 0 auto 40px;
+    }
+
+    .search-bar {
+      padding: 12px 20px;
+      width: 100%;
+      border-radius: 25px;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .search-bar:focus {
+      outline: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .suggestion-container {
+      position: absolute;
+      width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: white;
+      border-radius: 0 0 15px 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      top: 45px;
+      left: 0;
+    }
+
+    .suggestion-item {
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 15px 15px;
+    }
+
+    .suggestion-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .suggestion-item.highlighted {
+      font-weight: bold;
+      color: #007bff;
+      background-color: rgba(0, 123, 255, 0.05);
+    }
+
+    .suggestion-item strong {
+      color: #007bff;
+    }
+
+    .hazard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hazard-title,
+    .searching-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .hazard-links {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .hazard-links a {
+      color: #007BFF;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 14px;
+    }
+
+    .hazard-links a:hover {
+      text-decoration: underline;
+    }
+
+    .divider {
+      margin: 0 5px;
+      color: #999;
+    }
+
+    .hazard-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      margin: 20px auto;
+      max-width: 800px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .hazard-img {
+      max-height: 70px;
+      height: auto;
+      width: auto;
+      margin: 10px;
+    }
+
+    .activate-btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #5cb85c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 180px;
+      transition: all 0.3s ease;
+      margin: 10px;
+      box-shadow: 0 2px 8px rgba(92, 184, 92, 0.3);
+    }
+
+    .activate-btn:hover {
+      background-color: #4cae4c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(92, 184, 92, 0.4);
+    }
+
+    .header-with-sort {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 10px;
+    }
+
+    .sort-select {
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1.5px solid #4a90e2;
+      background-color: #f0f6ff;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+    }
+
+    .sort-select:hover,
+    .sort-select:focus {
+      border-color: #0051a8;
+      background-color: #e4efff;
+      outline: none;
+    }
+
+    .ewg-products {
+      background: linear-gradient(to bottom, #e8f5e9, #f1f8e9);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin-top: 30px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 25px;
+      padding: 20px 0;
+      justify-content: center;
+    }
+
+    .product-card {
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 15px;
+    }
+
+    .product-card .title {
+      font-size: 14px;
+      color: #333;
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: auto;
+    }
+
+    .title.green-highlight {
+      background-color: #b9f5cc;
+    }
+
+    .title.yellow-highlight {
+      background-color: #fffab8;
+    }
+
+    .title.red-highlight {
+      background-color: #ffd6d6;
+    }
+
+    .pagination {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      border-radius: 18px;
+      padding: 12px 18px;
+      width: fit-content;
+      margin: 30px auto 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
+
+    .pagination button {
+      margin: 0 2px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid #b6b6c9;
+      background: #fff;
+      color: #333;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .pagination button.active-page,
+    .pagination button:disabled {
+      background: #007bff;
+      color: #fff;
+      font-weight: bold;
+      border: 1.5px solid #007bff;
+      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .pagination button:hover:not(:disabled):not(.active-page) {
+      background: #f0f6ff;
+      color: #007bff;
+      border-color: #007bff;
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .delay-1 {
+      animation-delay: 0.1s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.3s;
+    }
+
+    .delay-4 {
+      animation-delay: 0.4s;
+    }
+
+    .no-results,
+    .no-query,
+    .error-message {
+      text-align: center;
+      padding: 30px;
+      font-size: 16px;
+      color: #666;
+    }
+
+    .center-text {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    @media (max-width: 768px) {
+      .hazard-header {
+        flex-direction: column;
+      }
+
+      .hazard-links {
+        margin-top: 15px;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+
+      .header-with-sort {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hazard-container {
+        flex-direction: column;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -19,10 +415,12 @@
   <div class="main-content">
     <form action="searching-result.html" method="GET" class="search-container fade-in">
       <input type="text" name="query" placeholder="Search for a product" class="search-bar">
+      <!-- Suggestion container -->
+      <div class="suggestion-container" style="display: none;"></div>
     </form>
 
     <div class="hazard-header fade-in delay-1">
-      <div class="hazard-title"></div>
+      <div class="hazard-title">Product Hazard Levels</div>
       <div class="hazard-links">
         <a id="scoreLink" href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
         <span class="divider">|</span>
@@ -30,32 +428,27 @@
       </div>
     </div>
 
-
-    <div class="hazard-container">
-      <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
+    <div class="hazard-container fade-in delay-2">
+      <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img" />
       <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
     </div>
 
-    <div class="ewg-products">
-      <div class="fade-in delay-4">
-        <div class="header-with-sort">
-          <select id="sortOption" class="sort-select">
-            <option value="default">Sort: Default</option>
-            <option value="asc">Sort: A → Z</option>
-            <option value="desc">Sort: Z → A</option>
-          </select>
-          <div class="searching-title"></div>
-          <p class="center-text"></p>
-        </div>
+    <div class="ewg-products fade-in delay-3">
+      <div class="header-with-sort fade-in delay-4">
+        <select id="sortOption" class="sort-select">
+          <option value="default">Sort: Default</option>
+          <option value="asc">Sort: A → Z</option>
+          <option value="desc">Sort: Z → A</option>
+        </select>
+        <div class="searching-title">Search results for: "..."</div>
+        <p class="center-text"></p>
       </div>
+
       <div class="product-grid"></div>
     </div>
 
+    <div class="pagination fade-in delay-4" id="pagination"></div>
   </div>
-
-  <div class="pagination" id="pagination"></div>
-
-  <div class="background-image"></div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -67,25 +460,22 @@
     const scoreLink = document.getElementById('scoreLink');
     const verifiedLink = document.getElementById('verifiedLink');
 
-    scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(query)}`;
-    verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(query)}`;
+    if (query) {
+      scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(query)}`;
+      verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(query)}`;
+    }
 
-  </script>
-
-  <script>
     const button = document.getElementById("activateBtn");
-    window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true"
+    window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true";
     button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
 
     button.addEventListener("click", function () {
       window.isCosafeActive = !window.isCosafeActive;
       localStorage.setItem("isCosafeActive", window.isCosafeActive);
       this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
-      fetchProducts(query, currentPage)
+      fetchProducts(query, currentPage);
     });
-  </script>
 
-  <script>
     let products = [];
     let totalPages = 1;
     let totalProducts = 0;
@@ -94,19 +484,20 @@
     let currentSort = 'default';
 
     const productGrid = document.querySelector('.product-grid');
-
     const hazardTitle = document.querySelector('.hazard-title');
     const searchingTitle = document.querySelector('.searching-title');
 
-
-
-
-    // Hàm gọi API tìm sản phẩm 
+    // Fetch products from API
     async function fetchProducts(query, currentPage) {
-      console.log("Gọi fetchProducts với query:", query);
+      console.log("Calling fetchProducts with query:", query);
+
+      if (!query) {
+        productGrid.innerHTML = '<p class="no-query">Please enter a search keyword to view results.</p>';
+        return;
+      }
 
       try {
-        // Thử gọi API /safety trước
+        // Try calling /safety API first
         const safetyResponse = await fetch('http://127.0.0.1:8000/safety', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -118,25 +509,25 @@
         }
 
         const safetyData = await safetyResponse.json();
-        console.log("Dữ liệu trả về từ API /safety:", safetyData);
+        console.log("Data from /safety API:", safetyData);
 
-        // Nếu API /safety trả về kết quả hợp lệ (có name và score)
+        // If /safety API returns valid result (has name and score)
         if (safetyData.name && safetyData.score !== undefined) {
           products = [{
             title: safetyData.name,
             score: safetyData.score || 0,
-            search_score: 1.0, // Gán search_score mặc định cho kết quả từ /safety
-            img: safetyData.link_image || `assets/images/product-placeholder.jpg` // Ảnh mặc định
+            search_score: 1.0, // Default search_score for /safety result
+            img: safetyData.link_image || `assets/images/product-placeholder.jpg` // Default image
           }];
 
-          // Cập nhật giao diện
+          // Update UI
           searchingTitle.textContent = `Search results for: "${query}" (1 product)`;
           updatePagination();
           renderProducts(currentPage);
           return;
         }
 
-        // Nếu không tìm thấy sản phẩm từ /safety, gọi API /search
+        // If no product found from /safety, call /search API
         const searchResponse = await fetch('http://127.0.0.1:8000/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -148,9 +539,9 @@
         }
 
         const searchData = await searchResponse.json();
-        console.log("Dữ liệu trả về từ API /search:", searchData);
+        console.log("Data from /search API:", searchData);
 
-        // Xử lý trường hợp "Không tìm thấy sản phẩm"
+        // Handle "No products found" case
         if (searchData.message === "Không tìm thấy sản phẩm" || (searchData.products && searchData.products.length === 0)) {
           productGrid.innerHTML = '<p class="no-results">No products matched your search.</p>';
           products = [];
@@ -158,15 +549,15 @@
           return;
         }
 
-        // Chuyển đổi dữ liệu API thành định dạng hiển thị
+        // Convert API data to display format
         products = searchData.products.map(product => ({
           title: product.name,
           score: product.score || 0,
           search_score: product.search_score,
-          img: product.link_image || `assets/images/product-placeholder.jpg` // Ảnh mặc định
+          img: product.link_image || `assets/images/product-placeholder.jpg` // Default image
         }));
 
-        // Cập nhật tiêu đề hiển thị
+        // Update display title
         totalProducts = searchData.total || products.length;
         searchingTitle.textContent = `Search results for: "${query}" (${totalProducts} products)`;
         updatePagination();
@@ -185,7 +576,6 @@
       renderPagination();
     }
 
-
     function renderProducts(page) {
       productGrid.innerHTML = '';
 
@@ -200,10 +590,8 @@
 
         card.addEventListener("click", () => {
           const encodedTitle = encodeURIComponent(prod.title);
-
           window.location.href = `product-detail.html?query=${query}&title=${encodedTitle}`;
         });
-
 
         productGrid.appendChild(card);
       });
@@ -229,21 +617,28 @@
       const pagination = document.getElementById('pagination');
       pagination.innerHTML = '';
 
-      // Nút First
+      if (totalProducts <= 0) {
+        pagination.style.display = 'none';
+        return;
+      } else {
+        pagination.style.display = 'flex';
+      }
+
+      // First button
       const firstBtn = document.createElement('button');
       firstBtn.textContent = 'First';
       firstBtn.disabled = currentPage === 1;
       firstBtn.onclick = () => { currentPage = 1; fetchProducts(query, currentPage); };
       pagination.appendChild(firstBtn);
 
-      // Nút Previous
+      // Previous button
       const prevBtn = document.createElement('button');
       prevBtn.textContent = 'Previous';
       prevBtn.disabled = currentPage === 1;
       prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; fetchProducts(query, currentPage); } };
       pagination.appendChild(prevBtn);
 
-      // Số trang dạng ... 2 3 [4] 5 6 ...
+      // Page numbers like ... 2 3 [4] 5 6 ...
       let startPage = Math.max(1, currentPage - 2);
       let endPage = Math.min(totalPages, currentPage + 2);
 
@@ -268,21 +663,21 @@
         pagination.appendChild(dot);
       }
 
-      // Nút Next
+      // Next button
       const nextBtn = document.createElement('button');
       nextBtn.textContent = 'Next';
       nextBtn.disabled = currentPage === totalPages;
       nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; fetchProducts(query, currentPage); } };
       pagination.appendChild(nextBtn);
 
-      // Nút Last
+      // Last button
       const lastBtn = document.createElement('button');
       lastBtn.textContent = 'Last';
       lastBtn.disabled = currentPage === totalPages;
       lastBtn.onclick = () => { currentPage = totalPages; fetchProducts(query, currentPage); };
       pagination.appendChild(lastBtn);
 
-      // Thông tin tổng
+      // Total info
       const info = document.createElement('span');
       info.textContent = ` Page ${currentPage} / ${totalPages} `;
       info.style.marginLeft = '10px';
@@ -295,42 +690,199 @@
       fetchProducts(query, currentPage);
     });
 
-
-    fetchProducts(query, currentPage);
-
-
     function getColorForProduct(productName) {
-      // Tìm sản phẩm trong mảng products dựa trên productName
+      // Find product in products array based on productName
       const prod = products.find((p) => p.title === productName);
 
-      // Nếu không tìm thấy sản phẩm hoặc score không phải là số, trả về null
+      // If product not found or score is not a number, return null
       if (!prod || typeof prod.score !== "number") return null;
 
       const score = prod.score;
 
-      // Xác định màu dựa trên khoảng giá trị của score
+      // Determine color based on score range
       if (score >= 0 && score <= 2) return "green";
       if (score >= 3 && score <= 6) return "yellow";
       if (score >= 7 && score <= 10) return "red";
 
-      // Nếu score ngoài khoảng 0-10, trả về null
+      // If score outside 0-10 range, return null
       return null;
     }
 
-    // Gọi API và render khi trang được load
+    // Search suggestion functionality
+    const searchContainer = document.querySelector('.search-container');
+    const searchBar = document.querySelector('.search-bar');
+    const suggestionContainer = document.querySelector('.suggestion-container');
+
+    let suggestions = [];
+    let selectedIndex = -1;
+    let debounceTimer;
+
+    async function getSuggestions(query) {
+      if (!query || query.length < 2) {
+        hideSuggestions();
+        return;
+      }
+
+      try {
+        // Use existing search API
+        const response = await fetch('http://127.0.0.1:8000/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword: query, page: 1, size: 6, sort: 'default' })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Only get product names from results
+        if (data.products && data.products.length > 0) {
+          suggestions = data.products.map(product => product.name);
+          showSuggestions(query);
+        } else {
+          hideSuggestions();
+        }
+      } catch (error) {
+        console.error('Error getting search suggestions:', error);
+        hideSuggestions();
+      }
+    }
+
+    function showSuggestions(query) {
+      suggestionContainer.innerHTML = '';
+
+      if (suggestions.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      // Create suggestion items
+      suggestions.forEach((suggestion, index) => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        if (index === selectedIndex) {
+          item.classList.add('highlighted');
+        }
+
+        // Highlight matching part
+        const regex = new RegExp(`(${query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+        const highlightedText = suggestion.replace(regex, '<strong>$1</strong>');
+        item.innerHTML = highlightedText;
+
+        // Handle click event on suggestion
+        item.addEventListener('click', () => {
+          searchBar.value = suggestion;
+          hideSuggestions();
+
+          // Go to search results page with selected keyword
+          window.location.href = `searching-result.html?query=${encodeURIComponent(suggestion)}`;
+        });
+
+        suggestionContainer.appendChild(item);
+      });
+
+      suggestionContainer.style.display = 'block';
+    }
+
+    function hideSuggestions() {
+      suggestionContainer.style.display = 'none';
+      selectedIndex = -1;
+    }
+
+    // Add input event for search bar
+    searchBar.addEventListener('input', function (e) {
+      const query = e.target.value.trim();
+
+      // Reset selected index
+      selectedIndex = -1;
+
+      // Clear previous timeout (debounce)
+      clearTimeout(debounceTimer);
+
+      // Set debounce to avoid calling API too many times
+      debounceTimer = setTimeout(() => {
+        getSuggestions(query);
+      }, 300);
+    });
+
+    // Handle arrow keys and Enter to navigate suggestions
+    searchBar.addEventListener('keydown', function (e) {
+      // Only process when suggestions are showing
+      if (suggestionContainer.style.display !== 'block') {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          selectedIndex = (selectedIndex + 1) % suggestions.length;
+          showSuggestions(searchBar.value.trim());
+          if (selectedIndex >= 0) {
+            searchBar.value = suggestions[selectedIndex];
+          }
+          break;
+
+        case 'ArrowUp':
+          e.preventDefault();
+          selectedIndex = selectedIndex <= 0 ? suggestions.length - 1 : selectedIndex - 1;
+          showSuggestions(searchBar.value.trim());
+          if (selectedIndex >= 0) {
+            searchBar.value = suggestions[selectedIndex];
+          }
+          break;
+
+        case 'Enter':
+          if (selectedIndex >= 0) {
+            e.preventDefault();
+            searchBar.value = suggestions[selectedIndex];
+            hideSuggestions();
+          }
+          break;
+
+        case 'Escape':
+          hideSuggestions();
+          break;
+      }
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!searchContainer.contains(e.target)) {
+        hideSuggestions();
+      }
+    });
+
+    // Show suggestions again when focusing on search bar if it has content
+    searchBar.addEventListener('focus', function () {
+      const query = searchBar.value.trim();
+      if (query.length >= 2) {
+        getSuggestions(query);
+      }
+    });
+
+    // Handle form submit to avoid duplicate submits
+    const searchForm = searchBar.closest('form');
+    if (searchForm) {
+      searchForm.addEventListener('submit', function (e) {
+        const query = searchBar.value.trim();
+        if (!query) {
+          e.preventDefault();
+        }
+      });
+    }
+
+    // Call API and render when page loads
     (async () => {
       if (query) {
         await fetchProducts(query, currentPage);
       } else {
-        productGrid.innerHTML = '<p class="no-query">Please enter a search keyword to view the results..</p>';
-        console.warn("Không có query trong URL, không fetch được sản phẩm.");
+        productGrid.innerHTML = '<p class="no-query">Please enter a search keyword to view results.</p>';
+        console.warn("No query in URL, cannot fetch products.");
       }
     })();
-
   </script>
-
-
-
 </body>
 
 </html>
