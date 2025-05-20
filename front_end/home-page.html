@@ -28,15 +28,68 @@
       <form
         action="searching-result.html"
         method="GET"
-        class="search-container fade-in delay-2"
+        class="search-container fade-in"
+        id="searchForm"
+        autocomplete="off"
       >
         <input
           type="text"
           name="query"
           placeholder="Search for a product"
           class="search-bar"
+          id="textSearchBar"
         />
+        <button
+          type="button"
+          class="image-search-btn"
+          id="openImageModal"
+          title="Search by image"
+        >
+          <img src="assets/images/camera-icon.png" alt="Search by image" />
+        </button>
       </form>
+
+      <!-- Modal tìm kiếm bằng ảnh (hiện chỉ khi bấm icon) -->
+      <div id="imageSearchModal" class="image-search-modal">
+        <div class="modal-content">
+          <span class="close-modal" id="closeImageModal">&times;</span>
+          <h2>Search by Image</h2>
+          <div class="drop-area" id="dropArea">
+            <img
+              src="assets/images/imagesearching.jpg"
+              alt="Drop area"
+              class="drop-image"
+            />
+            <p>
+              Drag an image here or
+              <label for="imageInput" class="upload-link">upload a file</label>
+            </p>
+            <input
+              type="file"
+              id="imageInput"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
+          <div class="or-divider">OR</div>
+          <input
+            type="text"
+            id="imageUrlInput"
+            class="image-url-input"
+            placeholder="Paste image URL here"
+          />
+          <button
+            type="button"
+            class="image-search-submit"
+            id="submitImageSearch"
+          >
+            Search
+          </button>
+          <div id="imageSearchLoading" class="loading" style="display: none">
+            Processing image...
+          </div>
+        </div>
+      </div>
 
       <div class="stats fade-in delay-3">
         <div><strong>127,485</strong><br />Products</div>
@@ -94,6 +147,53 @@
       </div>
     </section>
 
+    <div class="form-section-bg">
+      <div class="guide-title">
+        GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br />
+        CHOOSING SAFER PERSONAL CARE PRODUCTS!
+      </div>
+      <form autocomplete="off">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="country">Country</label>
+            <select id="country" name="country">
+              <option value="US">United States</option>
+              <option value="CA">Canada</option>
+              <option value="GB">United Kingdom</option>
+              <option value="AU">Australia</option>
+              <option value="VN" selected>Vietnam</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="zip">ZIP Code</label>
+            <input type="text" id="zip" name="zip" placeholder="" />
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group full-width">
+            <label for="email">Email*</label>
+            <input type="email" id="email" name="email" placeholder="" />
+          </div>
+        </div>
+        <div class="submit-btn-row">
+          <button type="submit" class="submit-btn">GET THE GUIDE</button>
+        </div>
+      </form>
+      <div class="form-note">
+        Stay informed by signing up to receive email tips, action alerts,
+        promotions to support our work and more from EWG. You can opt-out at any
+        time.
+      </div>
+    </div>
+    <div class="background-image"></div>
+
+    <!-- Tách phần gửi email sang file ngoài -->
+    <script src="assets/js/guide-email.js"></script>
+    <script>
+      setupGuideEmailForm();
+    </script>
+
     <script>
       const ewgSection = document.getElementById("ewgProducts");
 
@@ -117,5 +217,8 @@
         });
       });
     </script>
+
+    <!-- Tách phần script xử lý hình ảnh sang file riêng -->
+    <script src="assets/js/image-search.js"></script>
   </body>
 </html>
