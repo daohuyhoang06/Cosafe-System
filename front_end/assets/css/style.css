@@ -2,7 +2,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 body {
@@ -57,14 +57,14 @@ header {
   max-width: 500px;
   border-radius: 25px;
   border: none;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   font-size: 16px;
   transition: all 0.3s ease-in-out;
 }
 
 .search-bar:focus {
   outline: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .stats {
@@ -88,7 +88,7 @@ header {
   right: 0;
   width: 55%;
   height: 55%;
-  background: url('../images/oil-bubbles.jpg') no-repeat bottom right;
+  background: url("../images/oil-bubbles.jpg") no-repeat bottom right;
   background-size: cover;
   opacity: 0.9;
   z-index: 1;
@@ -103,7 +103,7 @@ header {
   background: white;
   padding: 16px 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   font-size: 14px;
   z-index: 3;
   max-width: 360px;
@@ -115,16 +115,6 @@ header {
   cursor: pointer;
   font-weight: bold;
 }
-
-
-
-
-
-
-
-
-
-
 
 .ewg-products {
   background: linear-gradient(to bottom, #e8f5e9, #f1f8e9);
@@ -156,7 +146,7 @@ header {
 
 .product-card {
   background: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding: 15px;
   width: 220px;
   min-width: 220px; /* QUAN TRỌNG để không bị co lại */
@@ -164,7 +154,6 @@ header {
   transition: transform 0.3s ease;
   flex-shrink: 0; /* QUAN TRỌNG để ngăn co lại khi không đủ chỗ */
 }
-
 
 .product-card:hover {
   transform: translateY(-5px);
@@ -184,33 +173,25 @@ header {
 }
 
 .title.green-highlight {
-  background-color: green; 
+  background-color: #b9f5cc;
   padding: 4px 6px;
   border-radius: 4px;
   display: inline-block;
 }
 
 .title.yellow-highlight {
-  background-color: yellow; 
+  background-color: #fffab8;
   padding: 4px 6px;
   border-radius: 4px;
   display: inline-block;
 }
 
 .title.red-highlight {
-  background-color: red; 
+  background-color: #ffd6d6;
   padding: 4px 6px;
   border-radius: 4px;
   display: inline-block;
 }
-
-
-
-
-
-
-
-
 
 .logo-link {
   text-decoration: none;
@@ -225,17 +206,21 @@ header {
   align-items: center;
   margin-bottom: 10px;
   flex-wrap: nowrap;
-  white-space: nowrap; 
-  overflow: hidden; 
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.hazard-title {
+.hazard-title,
+.searching-title {
   font-weight: bold;
   font-size: 18px;
+  margin: 0 auto;
+  display: block;
+  width: fit-content;
 }
 
 .hazard-links a {
-  color: #007BFF; 
+  color: #007bff;
   text-decoration: none;
   margin-left: 10px;
   font-size: 14px;
@@ -256,7 +241,7 @@ header {
   align-items: center;
   padding: 20px 50px;
   border-radius: 8px;
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .hazard-img {
@@ -281,53 +266,51 @@ header {
   background-color: #4cae4c;
 }
 
-
-
-
-
-
-
-
-
-
-
-
 .pagination {
+  background: rgba(245, 245, 255, 0.95);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 18px;
+  padding: 12px 18px;
+  width: fit-content;
+  margin: 24px auto 0 auto;
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-top: 15px;
-  gap: 10px;
+  gap: 3px;
+  font-size: 14px; /* Cỡ chữ cho toàn bộ pagination */
 }
 
 .pagination button {
-  padding: 6px 14px;
-  font-size: 14px;
+  margin: 0 2px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #b6b6c9;
+  background: #fff;
+  color: #333;
   cursor: pointer;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: white;
-  transition: background-color 0.3s ease;
-  width: 100px;
+  font-size: 14px; /* Cỡ chữ cho nút */
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.pagination button:hover:not(:disabled) {
-  background-color: #eee;
-}
-
+.pagination button.active-page,
 .pagination button:disabled {
-  cursor: default;
-  opacity: 0.5;
+  background: #007bff;
+  color: #fff;
+  font-weight: bold;
+  border: 1.5px solid #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.07);
 }
 
+.pagination button:hover:not(:disabled):not(.active-page) {
+  background: #f0f6ff;
+  color: #007bff;
+}
 
-
-
-
-
-
-
-
+.pagination span {
+  margin: 0 6px;
+  color: #888;
+  font-size: 14px; /* Cỡ chữ cho span */
+  user-select: none;
+}
 
 .understanding-section {
   max-width: 800px;
@@ -379,23 +362,13 @@ header {
   margin-top: 40px;
 }
 
-
-
-
-
-
-
-
-
-
-
 .header-with-sort {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   margin-bottom: 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 18px;
   color: #333;
@@ -415,7 +388,8 @@ header {
   box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
 }
 
-.sort-select:hover, .sort-select:focus {
+.sort-select:hover,
+.sort-select:focus {
   border-color: #0051a8;
   background-color: #e4efff;
   outline: none;
@@ -431,17 +405,6 @@ header {
   text-align: center;
   margin: 0;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 .ewg-verified-info {
   max-width: 900px;
@@ -514,37 +477,76 @@ header {
   line-height: 1.6;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 section {
   margin-bottom: 40px;
 }
 
 .product {
   display: grid;
-  grid-template-columns: 60px 1fr 250px;
-  column-gap: 20px;
+  grid-template-columns: 200px 1fr 200px;
+  column-gap: 32px;
   align-items: start;
+}
+
+.image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.product-image-wrapper {
+  width: 220px;
+  height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fdecdc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+#productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* hoặc cover nếu bạn muốn luôn đầy khung */
+  border-radius: 16px;
+  transition: transform 0.25s;
+  background: #fdecdc;
+}
+#productImage:hover {
+  transform: scale(1.03);
+}
+
+#downloadImageBtn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 24px;
+  background-color: #36b37e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(54, 179, 126, 0.08);
+}
+
+#downloadImageBtn:hover,
+#downloadImageBtn:focus {
+  background-color: #248c5c;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(54, 179, 126, 0.18);
+  outline: none;
 }
 
 .score-image img {
   width: 125px;
   height: 125px;
 }
-
-
 
 #productName {
   font-size: 24px;
@@ -602,7 +604,7 @@ section {
   background-color: green;
 }
 .dot.MODERATE {
-  background-color: orange;
+  background-color: yellow;
 }
 .dot.HIGH {
   background-color: red;
@@ -621,10 +623,9 @@ section {
   font-size: 18px;
   font-weight: 600;
 
-  display: flex;          
-  flex-wrap: wrap;  
+  display: flex;
+  flex-wrap: wrap;
 }
-
 
 .ingredient {
   border-top: 1px solid #ddd;
@@ -657,20 +658,16 @@ section {
   display: block;
 }
 
-
-
-
-
-
-
-
-
-
-
 /* Animations */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-in {
@@ -679,23 +676,44 @@ section {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-
-.delay-1 { animation-delay: 0.2s; }
-.delay-2 { animation-delay: 0.4s; }
-.delay-3 { animation-delay: 0.6s; }
-.delay-4 { animation-delay: 0.8s; }
-.delay-5 { animation-delay: 1.0s; }
-.delay-6 { animation-delay: 1.2s; }
-.delay-7 { animation-delay: 1.4s; }
-.delay-8 { animation-delay: 1.6s; }
-.delay-9 { animation-delay: 1.8s; }
-.delay-10 { animation-delay: 2.0s; }
-
-
+.delay-1 {
+  animation-delay: 0.2s;
+}
+.delay-2 {
+  animation-delay: 0.4s;
+}
+.delay-3 {
+  animation-delay: 0.6s;
+}
+.delay-4 {
+  animation-delay: 0.8s;
+}
+.delay-5 {
+  animation-delay: 1s;
+}
+.delay-6 {
+  animation-delay: 1.2s;
+}
+.delay-7 {
+  animation-delay: 1.4s;
+}
+.delay-8 {
+  animation-delay: 1.6s;
+}
+.delay-9 {
+  animation-delay: 1.8s;
+}
+.delay-10 {
+  animation-delay: 2s;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
