@@ -1,12 +1,15 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from elasticsearch import Elasticsearch
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
+from typing import Optional
 import re
 import os
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 import json
 from dotenv import load_dotenv
+import requests
+from io import BytesIO
 
 # Load environment variables
 load_dotenv()
@@ -53,6 +56,9 @@ class SearchRequest(BaseModel):
     page: int = 1
     size: int = 20
     sort: str = "default"  # "default", "asc", "desc"
+
+class ImageUrlRequest(BaseModel):
+    image_url: HttpUrl
 
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
@@ -220,35 +226,115 @@ async def productsSearch(request: SearchRequest):
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @app.post("/image-process")
-async def extract_labels(file: UploadFile = File(...)):
+async def extract_labels(
+    file: Optional[UploadFile] = File(None),
+    image_url: Optional[str] = Form(None)
+):
     try:
-        if not file.content_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail="File phải là ảnh (jpg, png, v.v.)")
-        content = await file.read()
+        # Kiểm tra xem có cung cấp file hoặc URL không
+        if file is None and not image_url:
+            raise HTTPException(
+                status_code=400, 
+                detail="Phải cung cấp file ảnh hoặc URL ảnh"
+            )
+            
+        # Nếu có file được tải lên
+        if file:
+            if not file.content_type.startswith("image/"):
+                raise HTTPException(
+                    status_code=400, 
+                    detail="File phải là ảnh (jpg, png, v.v.)"
+                )
+            content = await file.read()
+            mime_type = file.content_type
+            
+        # Nếu có URL được cung cấp
+        elif image_url:
+            try:
+                response = requests.get(image_url, timeout=10)
+                response.raise_for_status()  # Kiểm tra lỗi HTTP
+                content = response.content
+                
+                # Xác định mime_type từ header của response hoặc từ phần mở rộng của URL
+                mime_type = response.headers.get('Content-Type')
+                if not mime_type or not mime_type.startswith('image/'):
+                    # Dự đoán mime type từ phần mở rộng của URL
+                    if image_url.lower().endswith('.jpg') or image_url.lower().endswith('.jpeg'):
+                        mime_type = 'image/jpeg'
+                    elif image_url.lower().endswith('.png'):
+                        mime_type = 'image/png'
+                    elif image_url.lower().endswith('.gif'):
+                        mime_type = 'image/gif'
+                    elif image_url.lower().endswith('.webp'):
+                        mime_type = 'image/webp'
+                    else:
+                        mime_type = 'image/jpeg'  # Mặc định
+                        
+            except requests.exceptions.RequestException as e:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Không thể tải ảnh từ URL: {str(e)}"
+                )
+                
+        # Kiểm tra kích thước ảnh
         if len(content) > 10 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="File quá lớn, tối đa 10MB")
+            raise HTTPException(
+                status_code=400, 
+                detail="File quá lớn, tối đa 10MB"
+            )
+            
+        # Xử lý ảnh với Gemini API
         model = genai.GenerativeModel("gemini-1.5-flash")
         image = {
-            "mime_type": file.content_type,
+            "mime_type": mime_type,
             "data": content
         }
-        prompt = "Identify and extract the product name from the label on the bottle in this image. Return the result in JSON format: [{'description': 'product name', 'score': 0.9}, ...]. Ensure the response is valid JSON and contains only the JSON object."
+        
+        prompt = """
+        Identify and extract the product name from the label on the bottle in this image. 
+        Return the result in JSON format: [{'description': 'product name', 'score': 0.9}, ...]. 
+        Ensure the response is valid JSON and contains only the JSON object.
+        """
+        
         response = model.generate_content([prompt, image])
+        
         if not response.text:
-            raise HTTPException(status_code=500, detail="Gemini API không trả về kết quả")
+            raise HTTPException(
+                status_code=500, 
+                detail="Gemini API không trả về kết quả"
+            )
+            
         try:
-            labels = json.loads(response.text.strip("```json\n").strip("```"))
+            # Loại bỏ các ký tự markdown code nếu có
+            cleaned_text = response.text
+            if "```json" in cleaned_text:
+                cleaned_text = cleaned_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in cleaned_text:
+                cleaned_text = cleaned_text.split("```")[1].split("```")[0].strip()
+                
+            labels = json.loads(cleaned_text)
+            
         except json.JSONDecodeError:
-            raise HTTPException(status_code=500, detail="Không thể phân tích JSON từ Gemini API")
+            raise HTTPException(
+                status_code=500, 
+                detail="Không thể phân tích JSON từ Gemini API"
+            )
+            
+        # Trả về kết quả
         return {
             "labels": labels,
             "total_labels": len(labels),
+            "source_type": "file" if file else "url",
             "message": "Xử lý ảnh thành công" if labels else "Không tìm thấy tên sản phẩm trên nhãn"
         }
+        
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi server: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Lỗi server: {str(e)}"
+        )
 
 if __name__ == "__main__":
     import uvicorn
