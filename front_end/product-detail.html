@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWG Skin Deep</title>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -17,11 +17,10 @@
   </header>
 
   <div class="main-content">
-    <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm"
-      autocomplete="off">
-      <input type="text" name="query" placeholder="Search for a product" class="search-bar" id="textSearchBar" />
+    <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm" autocomplete="off">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar" id="textSearchBar">
       <button type="button" class="image-search-btn" id="openImageModal" title="Search by image">
-        <img src="assets/images/camera-icon.png" alt="Search by image" />
+        <img src="assets/images/camera-icon.png" alt="Search by image">
       </button>
     </form>
 
@@ -31,26 +30,17 @@
         <span class="close-modal" id="closeImageModal">&times;</span>
         <h2>Search by Image</h2>
         <div class="drop-area" id="dropArea">
-          <img src="assets/images/imagesearching.jpg" alt="Drop area" class="drop-image" />
-          <p>
-            Drag an image here or
-            <label for="imageInput" class="upload-link">upload a file</label>
-          </p>
-          <input type="file" id="imageInput" accept="image/*" style="display: none" />
+          <img src="assets/images/imagesearching.jpg" alt="Drop area" class="drop-image">
+          <p>Drag an image here or <label for="imageInput" class="upload-link">upload a file</label></p>
+          <input type="file" id="imageInput" accept="image/*" style="display:none;">
         </div>
-        <div class="or-divider">OR</div>
-        <input type="text" id="imageUrlInput" class="image-url-input" placeholder="Paste image URL here" />
-        <button type="button" class="image-search-submit" id="submitImageSearch">
-          Search
-        </button>
-        <div id="imageSearchLoading" class="loading" style="display: none">
-          Processing image...
-        </div>
+        <button type="button" class="image-search-submit" id="submitImageSearch">Search</button>
+        <div id="imageSearchLoading" class="loading" style="display:none;">Processing image...</div>
       </div>
     </div>
 
     <div class="hazard-header fade-in delay-1">
-      <div class="hazard-title"></div>
+      <div class="hazard-title"> </div>
       <div class="hazard-links">
         <a href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
         <span class="divider">|</span>
@@ -60,14 +50,12 @@
 
     <div class="hazard-container">
       <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
-      <button class="activate-btn fade-in delay-3" id="activateBtn">
-        Activate Cosafe
-      </button>
+      <button class="activate-btn fade-in delay-3" id="activateBtn">Activate Cosafe</button>
     </div>
 
     <div class="product">
       <div class="score-image">
-        <img id="scoreImage" alt="Score" />
+        <img id="scoreImage" alt="Score">
       </div>
       <div class="info">
         <h1 id="productName"></h1>
@@ -80,10 +68,8 @@
 
         <section class="ingredients">
           <h2>Ingredient lists</h2>
-          <p>
-            Activate Cosafe to score ingredients. They are scored based on
-            their formulation and concentration in this product.
-          </p>
+          <p>Activate Cosafe to score ingredients. They are scored based on their formulation and concentration in this
+            product.</p>
           <p id="ingredientLine" class="ingredient-line"></p>
         </section>
 
@@ -96,23 +82,19 @@
 
       <div class="image">
         <div class="product-image-wrapper">
-          <img id="productImage" alt="Product" />
+          <img id="productImage" alt="Product">
         </div>
         <div>WHERE TO BUY</div>
-        <button id="findOnAmazonBtn" type="button" style="margin-top: 12px">
-          Search on Amazon
-        </button>
+        <button id="findOnAmazonBtn" type="button" style="margin-top:12px;">Search on Amazon</button>
         <div class="affiliate-note">
-          When you make a purchase through retailer links on our site, we may
-          earn commission through affiliate programs. All affiliate fees EWG
-          receives support our nonprofit mission. Learn more here
+          When you make a purchase through retailer links on our site, we may earn commission through affiliate programs. All affiliate fees EWG receives support our nonprofit mission. Learn more here
         </div>
       </div>
     </div>
 
     <div class="form-section-bg">
       <div class="guide-title">
-        GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br />
+       GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br>
         CHOOSING SAFER PERSONAL CARE PRODUCTS!
       </div>
       <form autocomplete="off">
@@ -130,13 +112,13 @@
           </div>
           <div class="form-group">
             <label for="zip">ZIP Code</label>
-            <input type="text" id="zip" name="zip" placeholder="" />
+            <input type="text" id="zip" name="zip" placeholder="">
           </div>
         </div>
         <div class="form-row single">
           <div class="form-group full-width">
             <label for="email">Email*</label>
-            <input type="email" id="email" name="email" placeholder="" />
+            <input type="email" id="email" name="email" placeholder="">
           </div>
         </div>
         <div class="submit-btn-row">
@@ -144,9 +126,7 @@
         </div>
       </form>
       <div class="form-note">
-        Stay informed by signing up to receive email tips, action alerts,
-        promotions to support our work and more from EWG. You can opt-out at
-        any time.
+        Stay informed by signing up to receive email tips, action alerts, promotions to support our work and more from EWG. You can opt-out at any time.
       </div>
     </div>
     <div class="background-image"></div>
@@ -158,31 +138,22 @@
     </script>
     <!-- Các script riêng của trang giữ nguyên -->
     <script>
-      window.isCosafeActive =
-        localStorage.getItem("isCosafeActive") === "true";
+      window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true";
       window.currentProductData = null;
-      window.originalIngredientLineText = "";
+      window.originalIngredientLineText = '';
       let ingredientLineElement = null;
 
       const button = document.getElementById("activateBtn");
-      button.textContent = window.isCosafeActive
-        ? "Deactivate Cosafe"
-        : "Activate Cosafe";
+      button.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
 
       button.addEventListener("click", function () {
         window.isCosafeActive = !window.isCosafeActive;
         localStorage.setItem("isCosafeActive", window.isCosafeActive);
-        this.textContent = window.isCosafeActive
-          ? "Deactivate Cosafe"
-          : "Activate Cosafe";
+        this.textContent = window.isCosafeActive ? "Deactivate Cosafe" : "Activate Cosafe";
         if (window.isCosafeActive) {
           renderIngredientLine();
-        } else if (
-          ingredientLineElement &&
-          window.originalIngredientLineText
-        ) {
-          ingredientLineElement.textContent =
-            window.originalIngredientLineText;
+        } else if (ingredientLineElement && window.originalIngredientLineText) {
+          ingredientLineElement.textContent = window.originalIngredientLineText;
         }
       });
 
@@ -190,33 +161,28 @@
         if (!ingredientLineElement || !window.currentProductData) return;
 
         const data = window.currentProductData;
-        const ingredients = window.originalIngredientLineText
-          .split(",")
-          .map((i) => i.trim());
+        const ingredients = window.originalIngredientLineText.split(',').map(i => i.trim());
 
-        ingredientLineElement.innerHTML = "";
+        ingredientLineElement.innerHTML = '';
 
         ingredients.forEach((ingredient, index) => {
-          const words = ingredient.split(" ");
+          const words = ingredient.split(' ');
 
           words.forEach((word, wordIndex) => {
-            const span = document.createElement("span");
-            span.textContent =
-              wordIndex < words.length - 1 ? word + "\u00A0" : word;
+            const span = document.createElement('span');
+            span.textContent = wordIndex < words.length - 1 ? word + '\u00A0' : word;
 
             const color = getColorForIngredient(ingredient, data);
             if (color) {
               span.style.backgroundColor = color;
             }
 
-            span.style.display = "inline-block";
+            span.style.display = 'inline-block';
             ingredientLineElement.appendChild(span);
           });
 
           if (index < ingredients.length - 1) {
-            ingredientLineElement.appendChild(
-              document.createTextNode(",\u00A0")
-            );
+            ingredientLineElement.appendChild(document.createTextNode(',\u00A0'));
           }
         });
       }
@@ -236,18 +202,18 @@
       }
 
       const urlParams = new URLSearchParams(window.location.search);
-      const query = urlParams.get("query");
-      const title = urlParams.get("title");
+      const query = urlParams.get('query');
+      const title = urlParams.get('title');
       if (query) {
-        document.querySelector(".search-bar").value = query;
+        document.querySelector('.search-bar').value = query;
       }
 
       async function fetchProductData(productName) {
         try {
-          const response = await fetch("http://localhost:8000/get-all", {
-            method: "POST",
+          const response = await fetch('http://localhost:8000/get-all', {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({ name: productName }),
           });
@@ -258,133 +224,111 @@
 
           const data = await response.json();
 
-          if (data.message === "Không tìm thấy sản phẩm") {
-            console.warn("Product not found:", productName);
+          if (data.message === 'Không tìm thấy sản phẩm') {
+            console.warn('Product not found:', productName);
             return null;
           }
 
           return data;
         } catch (error) {
-          console.error("Error fetching product data:", error);
+          console.error('Error fetching product data:', error);
           return null;
         }
       }
 
       async function renderProductDetails() {
         if (!title) {
-          document.getElementById("productName").textContent =
-            "No Product Selected";
-          document.querySelector(".product").innerHTML =
-            '<div class="error-message"></div>';
+          document.getElementById("productName").textContent = "No Product Selected";
+          document.querySelector('.product').innerHTML = '<div class="error-message"></div>';
           return;
         }
 
         const data = await fetchProductData(title);
 
         if (!data) {
-          document.getElementById("productName").textContent =
-            "Product Not Found";
-          document.querySelector(".product").innerHTML =
-            '<div class="error-message"></div>';
+          document.getElementById("productName").textContent = "Product Not Found";
+          document.querySelector('.product').innerHTML = '<div class="error-message"></div>';
           return;
         }
 
         window.currentProductData = data;
-        document.getElementById("productName").textContent =
-          data.name || "Unknown Product";
-        document.getElementById("productImage").src =
-          data.link_image || "assets/images/product-placeholder.jpg";
-        document.getElementById("scoreImage").src =
-          data.score !== undefined
-            ? `assets/images/score-${Math.round(data.score * 1)}.png`
-            : "assets/images/score-na.png";
+        document.getElementById('productName').textContent = data.name || 'Unknown Product';
+        document.getElementById('productImage').src = data.link_image || 'assets/images/product-placeholder.jpg';
+        document.getElementById('scoreImage').src = data.score !== undefined
+          ? `assets/images/score-${Math.round(data.score * 1)}.png`
+          : 'assets/images/score-na.png';
 
-        const concernsDiv = document.getElementById("concernsList");
-        concernsDiv.innerHTML = "";
+        const concernsDiv = document.getElementById('concernsList');
+        concernsDiv.innerHTML = '';
         if (data.ingredient_concerns) {
-          Object.entries(data.ingredient_concerns).forEach(
-            ([label, level]) => {
-              const row = document.createElement("div");
-              row.className = "concern-row";
-              row.innerHTML = `
+          Object.entries(data.ingredient_concerns).forEach(([label, level]) => {
+            const row = document.createElement('div');
+            row.className = 'concern-row';
+            row.innerHTML = `
                 <div class="concern-level">
                     <span class="dot ${level}"></span>
                     <span class="level-text">${level}</span>
                 </div>
                 <div class="concern-label">${label}</div>
             `;
-              concernsDiv.appendChild(row);
-            }
-          );
+            concernsDiv.appendChild(row);
+          });
         } else {
-          concernsDiv.innerHTML = "<p>No ingredient concerns available.</p>";
+          concernsDiv.innerHTML = '<p>No ingredient concerns available.</p>';
         }
 
-        ingredientLineElement = document.getElementById("ingredientLine");
+        ingredientLineElement = document.getElementById('ingredientLine');
         ingredientLineElement.textContent = data.ingredients
-          ? Object.keys(data.ingredients).join(",\u00A0")
-          : "No ingredients available";
+          ? Object.keys(data.ingredients).join(',\u00A0')
+          : 'No ingredients available';
 
         window.originalIngredientLineText = ingredientLineElement.textContent;
         if (window.isCosafeActive) {
           renderIngredientLine();
         }
 
-        const ingredientsDiv = document.getElementById("ingredientList");
-        ingredientsDiv.innerHTML = "";
+        const ingredientsDiv = document.getElementById('ingredientList');
+        ingredientsDiv.innerHTML = '';
         if (data.ingredients) {
           Object.entries(data.ingredients).forEach(([name, info]) => {
-            const div = document.createElement("div");
-            div.className = "ingredient";
+            const div = document.createElement('div');
+            div.className = 'ingredient';
 
-            const link = info.link
-              ? `<a href="${info.link}" target="_blank">More Information</a>`
-              : "No additional information available.";
+            const link = info.link ? `<a href="${info.link}" target="_blank">More Information</a>` : 'No additional information available.';
 
             div.innerHTML = `
                 ${name}
                 <span class="toggle-link">+</span>
                 <div class="ingredient-link">${link}</div>
             `;
-            div
-              .querySelector(".toggle-link")
-              .addEventListener("click", () => {
-                div.classList.toggle("open");
-              });
+            div.querySelector('.toggle-link').addEventListener('click', () => {
+              div.classList.toggle('open');
+            });
             ingredientsDiv.appendChild(div);
           });
         } else {
-          ingredientsDiv.innerHTML =
-            "<p>No ingredient details available.</p>";
+          ingredientsDiv.innerHTML = '<p>No ingredient details available.</p>';
         }
       }
 
-      document
-        .getElementById("findOnAmazonBtn")
-        .addEventListener("click", function () {
-          let productName = document
-            .getElementById("productName")
-            .textContent.trim();
-          if (
-            !productName ||
-            productName === "Unknown Product" ||
-            productName === "No Product Selected" ||
-            productName === "Product Not Found"
-          ) {
-            alert("Can't take product's name to find on Amazon.");
-            return;
-          }
-          let searchUrl =
-            "https://www.amazon.com/s?k=" + encodeURIComponent(productName);
-          window.open(searchUrl, "_blank");
-        });
+      document.getElementById("findOnAmazonBtn").addEventListener("click", function() {
+        let productName = document.getElementById("productName").textContent.trim();
+        if (!productName || productName === "Unknown Product" || productName === "No Product Selected" || productName === "Product Not Found") {
+          alert("Can't take product's name to find on Amazon.");
+          return;
+        }
+        let searchUrl = "https://www.amazon.com/s?k=" + encodeURIComponent(productName);
+        window.open(searchUrl, "_blank");
+      });
 
-      document.addEventListener("DOMContentLoaded", renderProductDetails);
+      document.addEventListener('DOMContentLoaded', renderProductDetails);
     </script>
+
   </div>
 
-  <!-- Tách phần script xử lý hình ảnh sang file riêng -->
+   <!-- Tách phần script xử lý hình ảnh sang file riêng -->
   <script src="assets/js/image-search.js"></script>
+
   <script src="assets/js/autocomplete.js"></script>
 </body>
 

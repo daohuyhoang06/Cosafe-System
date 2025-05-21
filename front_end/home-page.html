@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWG Skin Deep</title>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -17,17 +17,14 @@
   </header>
 
   <main class="main-content">
-    <h1 class="fade-in">Your guide to safer<br />personal care products</h1>
-    <p class="fade-in delay-1">
-      Backed by science. Designed for you. Learn what’s really in your
-      personal care products.
+    <h1 class="fade-in">Your guide to safer<br>personal care products</h1>
+    <p class="fade-in delay-1">Backed by science. Designed for you. Learn what’s really in your personal care products.
     </p>
 
-    <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm"
-      autocomplete="off">
-      <input type="text" name="query" placeholder="Search for a product" class="search-bar" id="textSearchBar" />
+       <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm" autocomplete="off">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar" id="textSearchBar">
       <button type="button" class="image-search-btn" id="openImageModal" title="Search by image">
-        <img src="assets/images/camera-icon.png" alt="Search by image" />
+        <img src="assets/images/camera-icon.png" alt="Search by image">
       </button>
     </form>
 
@@ -37,124 +34,108 @@
         <span class="close-modal" id="closeImageModal">&times;</span>
         <h2>Search by Image</h2>
         <div class="drop-area" id="dropArea">
-          <img src="assets/images/imagesearching.jpg" alt="Drop area" class="drop-image" />
-          <p>
-            Drag an image here or
-            <label for="imageInput" class="upload-link">upload a file</label>
-          </p>
-          <input type="file" id="imageInput" accept="image/*" style="display: none" />
+          <img src="assets/images/imagesearching.jpg" alt="Drop area" class="drop-image">
+          <p>Drag an image here or <label for="imageInput" class="upload-link">upload a file</label></p>
+          <input type="file" id="imageInput" accept="image/*" style="display:none;">
         </div>
-        <div class="or-divider">OR</div>
-        <input type="text" id="imageUrlInput" class="image-url-input" placeholder="Paste image URL here" />
-        <button type="button" class="image-search-submit" id="submitImageSearch">
-          Search
-        </button>
-        <div id="imageSearchLoading" class="loading" style="display: none">
-          Processing image...
-        </div>
+        <button type="button" class="image-search-submit" id="submitImageSearch">Search</button>
+        <div id="imageSearchLoading" class="loading" style="display:none;">Processing image...</div>
       </div>
     </div>
 
     <div class="stats fade-in delay-3">
-      <div><strong>127,485</strong><br />Products</div>
-      <div><strong>6,101</strong><br />Brands</div>
-      <div>
-        <strong>2,522</strong><br />EWG Verified<sup>®</sup><br />Products
-      </div>
+      <div><strong>127,485</strong><br>Products</div>
+      <div><strong>6,101</strong><br>Brands</div>
+      <div><strong>2,522</strong><br>EWG Verified<sup>®</sup><br>Products</div>
     </div>
   </main>
 
   <div class="background-image"></div>
 
   <div class="notification fade-in delay-4">
-    We’ve updated the science and safety of several ingredients and the
-    products that use them in Skin Deep<sup>®</sup>. Thanks again for choosing
-    EWG.
+    We’ve updated the science and safety of several ingredients and the products that use them in Skin Deep<sup>®</sup>.
+    Thanks again for choosing EWG.
     <span class="close-btn" onclick="this.parentElement.style.display='none';">×</span>
   </div>
 
   <section class="ewg-products fade-in delay-5" id="ewgProducts">
     <h2>EWG VERIFIED®</h2>
     <p>
-      When a product is EWG VERIFIED®, it means it meets EWG’s strict,
-      scientific standards for transparency and health. Our team of
-      toxicologists, chemists and epidemiologists scrutinizes every product,
-      empowering you to purchase safer products.
+      When a product is EWG VERIFIED®, it means it meets EWG’s strict, scientific standards for transparency and health.
+      Our team of toxicologists, chemists and epidemiologists scrutinizes every product, empowering you to purchase
+      safer products.
     </p>
     <div class="product-grid">
+
       <div class="product-card fade-in delay-6">
-        <img src="assets/images/product1.jpg" alt="Product 1" />
+        <img src="assets/images/product1.jpg" alt="Product 1">
         <div class="title">COSRX Vitamin E Serum E-20</div>
       </div>
       <div class="product-card fade-in delay-7">
-        <img src="assets/images/product2.jpg" alt="Product 2" />
-        <div class="title">
-          Woda European Natural Skin Care, Clear Skin Toner
-        </div>
+        <img src="assets/images/product2.jpg" alt="Product 2">
+        <div class="title">Woda European Natural Skin Care, Clear Skin Toner</div>
       </div>
       <div class="product-card fade-in delay-8">
-        <img src="assets/images/product3.jpg" alt="Product 3" />
+        <img src="assets/images/product3.jpg" alt="Product 3">
         <div class="title">Walgreens Gentle Skin Cleanser</div>
       </div>
       <div class="product-card fade-in delay-9">
-        <img src="assets/images/product4.png" alt="Product 4" />
-        <div class="title">
-          Biore Blue Agave Deep Cleansing Pore Nose Strips (2019 formulation)
-        </div>
+        <img src="assets/images/product4.png" alt="Product 4">
+        <div class="title">Biore Blue Agave Deep Cleansing Pore Nose Strips (2019 formulation)</div>
       </div>
       <div class="product-card fade-in delay-10">
-        <img src="assets/images/product5.jpg" alt="Product 5" />
-        <div class="title">Eye Prote Eye Creme</div>
+        <img src="assets/images/product5.jpg" alt="Product 5">
+        <div class="title">Eye Prote Eye Creme
+        </div>
       </div>
     </div>
   </section>
 
-  <div class="form-section-bg">
-    <div class="guide-title">
-      GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br />
-      CHOOSING SAFER PERSONAL CARE PRODUCTS!
+    <div class="form-section-bg">
+      <div class="guide-title">
+       GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br>
+        CHOOSING SAFER PERSONAL CARE PRODUCTS!
+      </div>
+      <form autocomplete="off">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="country">Country</label>
+            <select id="country" name="country">
+              <option value="US">United States</option>
+              <option value="CA">Canada</option>
+              <option value="GB">United Kingdom</option>
+              <option value="AU">Australia</option>
+              <option value="VN" selected>Vietnam</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="zip">ZIP Code</label>
+            <input type="text" id="zip" name="zip" placeholder="">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group full-width">
+            <label for="email">Email*</label>
+            <input type="email" id="email" name="email" placeholder="">
+          </div>
+        </div>
+        <div class="submit-btn-row">
+          <button type="submit" class="submit-btn">GET THE GUIDE</button>
+        </div>
+      </form>
+      <div class="form-note">
+        Stay informed by signing up to receive email tips, action alerts, promotions to support our work and more from EWG. You can opt-out at any time.
+      </div>
     </div>
-    <form autocomplete="off">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="country">Country</label>
-          <select id="country" name="country">
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="GB">United Kingdom</option>
-            <option value="AU">Australia</option>
-            <option value="VN" selected>Vietnam</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="zip">ZIP Code</label>
-          <input type="text" id="zip" name="zip" placeholder="" />
-        </div>
-      </div>
-      <div class="form-row single">
-        <div class="form-group full-width">
-          <label for="email">Email*</label>
-          <input type="email" id="email" name="email" placeholder="" />
-        </div>
-      </div>
-      <div class="submit-btn-row">
-        <button type="submit" class="submit-btn">GET THE GUIDE</button>
-      </div>
-    </form>
-    <div class="form-note">
-      Stay informed by signing up to receive email tips, action alerts,
-      promotions to support our work and more from EWG. You can opt-out at any
-      time.
-    </div>
-  </div>
-  <div class="background-image"></div>
+    <div class="background-image"></div>
 
-  <!-- Tách phần gửi email sang file ngoài -->
-  <script src="assets/js/guide-email.js"></script>
-  <script>
-    setupGuideEmailForm();
-  </script>
+    <!-- Tách phần gửi email sang file ngoài -->
+    <script src="assets/js/guide-email.js"></script>
+    <script>
+      setupGuideEmailForm();
+    </script>
+
 
   <script>
     const ewgSection = document.getElementById("ewgProducts");
@@ -162,27 +143,31 @@
     window.addEventListener("scroll", () => {
       const triggerBottom = window.innerHeight + window.scrollY;
       const sectionTop = ewgSection.offsetTop;
+
     });
 
     localStorage.setItem("isCosafeActive", "false");
   </script>
 
   <script>
-    const productCards = document.querySelectorAll(".product-card");
+    const productCards = document.querySelectorAll('.product-card');
 
-    productCards.forEach((card) => {
-      card.addEventListener("click", () => {
-        const title = card.querySelector(".title").textContent.trim();
+    productCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const title = card.querySelector('.title').textContent.trim();
         const encodedTitle = encodeURIComponent(title);
 
         window.location.href = `product-detail.html?query=&title=${encodedTitle}`;
       });
     });
+
   </script>
 
-  <!-- Tách phần script xử lý hình ảnh sang file riêng -->
+   <!-- Tách phần script xử lý hình ảnh sang file riêng -->
   <script src="assets/js/image-search.js"></script>
+
   <script src="assets/js/autocomplete.js"></script>
+
 </body>
 
 </html>

@@ -1,16 +1,19 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile, Form
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from elasticsearch import Elasticsearch
-from pydantic import BaseModel, HttpUrl
-from typing import Optional
+from pydantic import BaseModel
 import re
 import os
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 import json
 from dotenv import load_dotenv
-import requests
-from io import BytesIO
-
+from pydantic import EmailStr
+from fastapi import BackgroundTasks
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 # Load environment variables
 load_dotenv()
 
@@ -57,8 +60,8 @@ class SearchRequest(BaseModel):
     size: int = 20
     sort: str = "default"  # "default", "asc", "desc"
 
-class ImageUrlRequest(BaseModel):
-    image_url: HttpUrl
+class GuideEmailRequest(BaseModel):
+    email: EmailStr
 
 @app.post("/safety")
 async def safety_check(request: SafetyRequest):
@@ -75,7 +78,7 @@ async def safety_check(request: SafetyRequest):
         if not result["hits"]["hits"]:
             return {"message": "Không tìm thấy sản phẩm"}
         hit = result["hits"]["hits"][0]["_source"]
-        return {"name": hit["name"], "score": hit["score"]}
+        return {"name": hit["name"], "score": hit["score"], "link_image": hit["link_image"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
@@ -226,115 +229,35 @@ async def productsSearch(request: SearchRequest):
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @app.post("/image-process")
-async def extract_labels(
-    file: Optional[UploadFile] = File(None),
-    image_url: Optional[str] = Form(None)
-):
+async def extract_labels(file: UploadFile = File(...)):
     try:
-        # Kiểm tra xem có cung cấp file hoặc URL không
-        if file is None and not image_url:
-            raise HTTPException(
-                status_code=400, 
-                detail="Phải cung cấp file ảnh hoặc URL ảnh"
-            )
-            
-        # Nếu có file được tải lên
-        if file:
-            if not file.content_type.startswith("image/"):
-                raise HTTPException(
-                    status_code=400, 
-                    detail="File phải là ảnh (jpg, png, v.v.)"
-                )
-            content = await file.read()
-            mime_type = file.content_type
-            
-        # Nếu có URL được cung cấp
-        elif image_url:
-            try:
-                response = requests.get(image_url, timeout=10)
-                response.raise_for_status()  # Kiểm tra lỗi HTTP
-                content = response.content
-                
-                # Xác định mime_type từ header của response hoặc từ phần mở rộng của URL
-                mime_type = response.headers.get('Content-Type')
-                if not mime_type or not mime_type.startswith('image/'):
-                    # Dự đoán mime type từ phần mở rộng của URL
-                    if image_url.lower().endswith('.jpg') or image_url.lower().endswith('.jpeg'):
-                        mime_type = 'image/jpeg'
-                    elif image_url.lower().endswith('.png'):
-                        mime_type = 'image/png'
-                    elif image_url.lower().endswith('.gif'):
-                        mime_type = 'image/gif'
-                    elif image_url.lower().endswith('.webp'):
-                        mime_type = 'image/webp'
-                    else:
-                        mime_type = 'image/jpeg'  # Mặc định
-                        
-            except requests.exceptions.RequestException as e:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Không thể tải ảnh từ URL: {str(e)}"
-                )
-                
-        # Kiểm tra kích thước ảnh
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="File phải là ảnh (jpg, png, v.v.)")
+        content = await file.read()
         if len(content) > 10 * 1024 * 1024:
-            raise HTTPException(
-                status_code=400, 
-                detail="File quá lớn, tối đa 10MB"
-            )
-            
-        # Xử lý ảnh với Gemini API
+            raise HTTPException(status_code=400, detail="File quá lớn, tối đa 10MB")
         model = genai.GenerativeModel("gemini-1.5-flash")
         image = {
-            "mime_type": mime_type,
+            "mime_type": file.content_type,
             "data": content
         }
-        
-        prompt = """
-        Identify and extract the product name from the label on the bottle in this image. 
-        Return the result in JSON format: [{'description': 'product name', 'score': 0.9}, ...]. 
-        Ensure the response is valid JSON and contains only the JSON object.
-        """
-        
+        prompt = "Identify and extract the product name from the label on the bottle in this image. Return the result in JSON format: [{'description': 'product name', 'score': 0.9}, ...]. Ensure the response is valid JSON and contains only the JSON object."
         response = model.generate_content([prompt, image])
-        
         if not response.text:
-            raise HTTPException(
-                status_code=500, 
-                detail="Gemini API không trả về kết quả"
-            )
-            
+            raise HTTPException(status_code=500, detail="Gemini API không trả về kết quả")
         try:
-            # Loại bỏ các ký tự markdown code nếu có
-            cleaned_text = response.text
-            if "```json" in cleaned_text:
-                cleaned_text = cleaned_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in cleaned_text:
-                cleaned_text = cleaned_text.split("```")[1].split("```")[0].strip()
-                
-            labels = json.loads(cleaned_text)
-            
+            labels = json.loads(response.text.strip("```json\n").strip("```"))
         except json.JSONDecodeError:
-            raise HTTPException(
-                status_code=500, 
-                detail="Không thể phân tích JSON từ Gemini API"
-            )
-            
-        # Trả về kết quả
+            raise HTTPException(status_code=500, detail="Không thể phân tích JSON từ Gemini API")
         return {
             "labels": labels,
             "total_labels": len(labels),
-            "source_type": "file" if file else "url",
             "message": "Xử lý ảnh thành công" if labels else "Không tìm thấy tên sản phẩm trên nhãn"
         }
-        
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Lỗi server: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Lỗi server: {str(e)}")
 
 @app.post("/autocomplete")
 async def autocomplete(request: SearchRequest):
@@ -415,7 +338,68 @@ async def autocomplete(request: SearchRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
-    
+
+
+def send_guide_email_task(to_email: str):
+    # Thông tin cấu hình email
+    SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
+    SMTP_USER = os.getenv("SMTP_USER")  # Ví dụ: yourmail@gmail.com
+    SMTP_PASS = os.getenv("SMTP_PASS")  # App password
+    if not (SMTP_USER and SMTP_PASS):
+        print("Missing SMTP_USER or SMTP_PASS in environment!")
+        return
+
+    subject = "Your Free Copy of EWG’s Quick Tips for Safer Personal Care Products"
+
+    text = (
+        "Thank you for requesting EWG’s Quick Tips for Choosing Safer Personal Care Products!\n\n"
+        "Please find your free guide attached to this email.\n\n"
+        "This guide will help you make smarter, healthier choices for you and your family. "
+        "Explore ingredient safety, learn how to spot EWG VERIFIED® products, and see how easy it is to shop with confidence.\n\n"
+        "Stay informed and empowered—visit EWG’s Skin Deep® database any time to search for safety scores and ingredient information on thousands of personal care products.\n\n"
+        "Thank you for supporting EWG’s mission to make safer products available for everyone!\n\n"
+        "With care,\n"
+        "The EWG Team"
+    )
+
+    # Tạo message đa phần (multipart)
+    msg = MIMEMultipart()
+    msg["Subject"] = subject
+    msg["From"] = SMTP_USER
+    msg["To"] = to_email
+    msg.attach(MIMEText(text, "plain", "utf-8"))
+
+    # Đính kèm file PDF
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    pdf_path = os.path.join(BASE_DIR, "front_end", "assets", "ewg-guide.pdf")
+    try:
+        with open(pdf_path, "rb") as f:
+            part = MIMEBase("application", "pdf")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header(
+                "Content-Disposition",
+                f'attachment; filename="EWG-Quick-Tips-Guide.pdf"'
+            )
+            msg.attach(part)
+    except Exception as e:
+        print(f"Error attaching PDF: {e}")
+
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(SMTP_USER, [to_email], msg.as_string())
+    except Exception as e:
+        print(f"Error sending guide email to {to_email}: {e}")
+
+@app.post("/send-guide-email")
+async def send_guide_email(request: GuideEmailRequest, background_tasks: BackgroundTasks):
+    # Gửi email trong background thread
+    background_tasks.add_task(send_guide_email_task, request.email)
+    return {"message": "Thanks! Check your email for the guide."}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
