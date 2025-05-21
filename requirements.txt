@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+passlib
+bcrypt
+elasticsearch
+python-multipart
+starlette
+google.generativeai
+dotenv
+pydantic
