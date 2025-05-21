@@ -58,14 +58,3 @@ function handleImageSearchFile(file) {
         isProcessing = false;
       });
 }
-
-// Search bằng URL ảnh
-document.getElementById('submitImageSearch').onclick = () => {
-  const url = document.getElementById('imageUrlInput').value.trim();
-  if (!url) return alert('Paste an image link!');
-  searchLoading.style.display = 'block';
-  fetch(url).then(r=>r.blob()).then(blob=>{
-    const file = new File([blob],'image_from_url',{type:blob.type});
-    handleImageSearchFile(file);
-  }).catch(()=>{ searchLoading.style.display='none'; alert('Could not fetch image from link!'); });
-};
