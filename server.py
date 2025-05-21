@@ -78,7 +78,7 @@ async def safety_check(request: SafetyRequest):
         if not result["hits"]["hits"]:
             return {"message": "Không tìm thấy sản phẩm"}
         hit = result["hits"]["hits"][0]["_source"]
-        return {"name": hit["name"], "score": hit["score"]}
+        return {"name": hit["name"], "score": hit["score"], "link_image": hit["link_image"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
@@ -258,6 +258,87 @@ async def extract_labels(file: UploadFile = File(...)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server: {str(e)}")
+
+@app.post("/autocomplete")
+async def autocomplete(request: SearchRequest):
+    """API endpoint tối ưu cho tính năng gợi ý tìm kiếm"""
+    try:
+        # Giới hạn kích thước kết quả trả về
+        request.size = min(request.size, 10)  # Tối đa 10 gợi ý
+        
+        keywords = request.keyword.split()
+        should_clauses = []
+        
+        # Ưu tiên prefix match cho autocomplete
+        for keyword in keywords:
+            should_clauses.extend([
+                {
+                    "prefix": {
+                        "name": {
+                            "value": keyword,
+                            "boost": 3.0  # Tăng boost cho prefix match
+                        }
+                    }
+                },
+                {
+                    "match_phrase_prefix": {
+                        "name": {
+                            "query": keyword,
+                            "boost": 2.0
+                        }
+                    }
+                },
+                {
+                    "fuzzy": {
+                        "name": {
+                            "value": keyword,
+                            "fuzziness": "AUTO",
+                            "boost": 1.0
+                        }
+                    }
+                }
+            ])
+        
+        # Thêm match phrase cho toàn bộ query
+        should_clauses.append({
+            "match_phrase_prefix": {
+                "name": {
+                    "query": request.keyword,
+                    "boost": 5.0
+                }
+            }
+        })
+        
+        result = es.search(
+            index="cs_products_data",
+            query={
+                "bool": {
+                    "should": should_clauses,
+                    "minimum_should_match": 1
+                }
+            },
+            size=request.size,
+            _source=["name", "score", "link_image"]  # Chỉ lấy các trường cần thiết
+        )
+        
+        if not result["hits"]["hits"]:
+            return {"products": [], "message": "Không tìm thấy gợi ý"}
+        
+        products = []
+        for hit in result["hits"]["hits"]:
+            source = hit["_source"]
+            products.append({
+                "name": source["name"],
+                "score": source.get("score", 0),
+                "search_score": hit["_score"],
+                "link_image": source.get("link_image", "assets/images/product-placeholder.jpg")
+            })
+        
+        return {"products": products, "total": result["hits"]["total"]["value"]}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
 
 def send_guide_email_task(to_email: str):
     # Thông tin cấu hình email

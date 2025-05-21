@@ -30,6 +30,7 @@ header {
   padding: 40px 20px 80px;
   position: relative;
   z-index: 2;
+  overflow: visible !important;
 }
 
 .main-content h1 {
@@ -200,30 +201,6 @@ header {
   font-weight: 500;
 }
 
-.or-divider {
-  width: 100%;
-  text-align: center;
-  color: #aaa;
-  font-size: 1rem;
-  margin: 8px 0 6px 0;
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
-.image-url-input {
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 7px;
-  border: 1.2px solid #d7dbe3;
-  height: 36px;
-  padding: 8px 10px;
-  font-size: 1rem;
-  margin-bottom: 0;
-  background: #f6f8fb;
-  transition: border-color 0.2s;
-}
-.image-url-input:focus { border-color: #5ca9e6; outline: none; }
-
 .image-search-submit {
   margin-top: 10px;
   width: 100%;
@@ -256,6 +233,50 @@ header {
     padding: 16px 4vw 18px 4vw;
   }
   .drop-area { width: 96vw; min-width: 0; }
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: #fff;
+  border: 1px solid #dcdcdc;
+  z-index: 5000; /* Đặt lớn hơn các thành phần khác */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+}
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 15px;
+  white-space: nowrap;           /* Không xuống dòng */
+  overflow-y: hidden;
+  overflow-x: hidden;
+  max-width: 100%;               /* Giới hạn chiều rộng theo box cha */
+  text-overflow: ellipsis;
+}
+
+.suggestion-item:hover, .suggestion-item:focus {
+  background: #f1f1f1;
+}
+.suggestion-img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  margin-right: 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.no-suggestion {
+  padding: 10px 12px;
+  color: #888;
+  font-size: 15px;
 }
 
 .stats {

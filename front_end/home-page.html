@@ -21,7 +21,7 @@
     <p class="fade-in delay-1">Backed by science. Designed for you. Learn what’s really in your personal care products.
     </p>
 
-   <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm" autocomplete="off">
+       <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm" autocomplete="off">
       <input type="text" name="query" placeholder="Search for a product" class="search-bar" id="textSearchBar">
       <button type="button" class="image-search-btn" id="openImageModal" title="Search by image">
         <img src="assets/images/camera-icon.png" alt="Search by image">
@@ -38,8 +38,6 @@
           <p>Drag an image here or <label for="imageInput" class="upload-link">upload a file</label></p>
           <input type="file" id="imageInput" accept="image/*" style="display:none;">
         </div>
-        <div class="or-divider">OR</div>
-        <input type="text" id="imageUrlInput" class="image-url-input" placeholder="Paste image URL here">
         <button type="button" class="image-search-submit" id="submitImageSearch">Search</button>
         <div id="imageSearchLoading" class="loading" style="display:none;">Processing image...</div>
       </div>
@@ -167,6 +165,8 @@
 
    <!-- Tách phần script xử lý hình ảnh sang file riêng -->
   <script src="assets/js/image-search.js"></script>
+
+  <script src="assets/js/autocomplete.js"></script>
 
 </body>
 

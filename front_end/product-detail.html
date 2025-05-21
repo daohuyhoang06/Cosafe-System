@@ -34,8 +34,6 @@
           <p>Drag an image here or <label for="imageInput" class="upload-link">upload a file</label></p>
           <input type="file" id="imageInput" accept="image/*" style="display:none;">
         </div>
-        <div class="or-divider">OR</div>
-        <input type="text" id="imageUrlInput" class="image-url-input" placeholder="Paste image URL here">
         <button type="button" class="image-search-submit" id="submitImageSearch">Search</button>
         <div id="imageSearchLoading" class="loading" style="display:none;">Processing image...</div>
       </div>
@@ -330,6 +328,8 @@
 
    <!-- Tách phần script xử lý hình ảnh sang file riêng -->
   <script src="assets/js/image-search.js"></script>
+
+  <script src="assets/js/autocomplete.js"></script>
 </body>
 
 </html>
