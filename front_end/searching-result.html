@@ -1,496 +1,454 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EWG Skin Deep</title>
-    <link rel="stylesheet" href="assets/css/style.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
 
-  <body>
-    <header class="header">
-      <div class="logo">
-        <a href="home-page.html" class="logo-link">Cosafe System</a>
-      </div>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWG Skin Deep</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet" />
+</head>
 
-    <div class="main-content">
-      <form
-        action="searching-result.html"
-        method="GET"
-        class="search-container fade-in"
-        id="searchForm"
-        autocomplete="off"
-      >
-        <input
-          type="text"
-          name="query"
-          placeholder="Search for a product"
-          class="search-bar"
-          id="textSearchBar"
-        />
-        <button
-          type="button"
-          class="image-search-btn"
-          id="openImageModal"
-          title="Search by image"
-        >
-          <img src="assets/images/camera-icon.png" alt="Search by image" />
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="home-page.html" class="logo-link">Cosafe System</a>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <form action="searching-result.html" method="GET" class="search-container fade-in" id="searchForm"
+      autocomplete="off">
+      <input type="text" name="query" placeholder="Search for a product" class="search-bar" id="textSearchBar" />
+      <button type="button" class="image-search-btn" id="openImageModal" title="Search by image">
+        <img src="assets/images/camera-icon.png" alt="Search by image" />
+      </button>
+    </form>
+
+    <!-- Modal tìm kiếm bằng ảnh (hiện chỉ khi bấm icon) -->
+    <div id="imageSearchModal" class="image-search-modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeImageModal">&times;</span>
+        <h2>Search by Image</h2>
+        <div class="drop-area" id="dropArea">
+          <img src="assets/images/imagesearching.jpg" alt="Drop area" class="drop-image" />
+          <p>
+            Drag an image here or
+            <label for="imageInput" class="upload-link">upload a file</label>
+          </p>
+          <input type="file" id="imageInput" accept="image/*" style="display: none" />
+        </div>
+        <div class="or-divider">OR</div>
+        <input type="text" id="imageUrlInput" class="image-url-input" placeholder="Paste image URL here" />
+        <button type="button" class="image-search-submit" id="submitImageSearch">
+          Search
         </button>
-      </form>
-
-      <!-- Modal tìm kiếm bằng ảnh (hiện chỉ khi bấm icon) -->
-      <div id="imageSearchModal" class="image-search-modal">
-        <div class="modal-content">
-          <span class="close-modal" id="closeImageModal">&times;</span>
-          <h2>Search by Image</h2>
-          <div class="drop-area" id="dropArea">
-            <img
-              src="assets/images/imagesearching.jpg"
-              alt="Drop area"
-              class="drop-image"
-            />
-            <p>
-              Drag an image here or
-              <label for="imageInput" class="upload-link">upload a file</label>
-            </p>
-            <input
-              type="file"
-              id="imageInput"
-              accept="image/*"
-              style="display: none"
-            />
-          </div>
-          <div class="or-divider">OR</div>
-          <input
-            type="text"
-            id="imageUrlInput"
-            class="image-url-input"
-            placeholder="Paste image URL here"
-          />
-          <button
-            type="button"
-            class="image-search-submit"
-            id="submitImageSearch"
-          >
-            Search
-          </button>
-          <div id="imageSearchLoading" class="loading" style="display: none">
-            Processing image...
-          </div>
+        <div id="imageSearchLoading" class="loading" style="display: none">
+          Processing image...
         </div>
-      </div>
-
-      <div class="hazard-header fade-in delay-1">
-        <div class="hazard-title"></div>
-        <div class="hazard-links">
-          <a id="scoreLink" href="how-we-determine-scores.html"
-            >HOW WE DETERMINE SCORES</a
-          >
-          <span class="divider">|</span>
-          <a id="verifiedLink" href="learn-more-ewg-verified.html"
-            >LEARN MORE ABOUT EWG VERIFIED®</a
-          >
-        </div>
-      </div>
-
-      <div class="hazard-container">
-        <img
-          src="assets/images/hazard-score-range.png"
-          alt="Hazard Score Range"
-          class="hazard-img fade-in delay-2"
-        />
-        <button class="activate-btn fade-in delay-3" id="activateBtn">
-          Activate Cosafe
-        </button>
-      </div>
-
-      <div class="ewg-products">
-        <div class="fade-in delay-4">
-          <div class="header-with-sort">
-            <select id="sortOption" class="sort-select">
-              <option value="default">Sort: Default</option>
-              <option value="asc">Sort: A → Z</option>
-              <option value="desc">Sort: Z → A</option>
-            </select>
-            <div class="searching-title"></div>
-            <p class="center-text"></p>
-          </div>
-        </div>
-        <div class="product-grid"></div>
       </div>
     </div>
 
-    <div class="pagination" id="pagination"></div>
-
-    <div class="background-image"></div>
-
-    <div class="form-section-bg">
-      <div class="guide-title">
-        GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br />
-        CHOOSING SAFER PERSONAL CARE PRODUCTS!
-      </div>
-      <form autocomplete="off">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="country">Country</label>
-            <select id="country" name="country">
-              <option value="US">United States</option>
-              <option value="CA">Canada</option>
-              <option value="GB">United Kingdom</option>
-              <option value="AU">Australia</option>
-              <option value="VN" selected>Vietnam</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="zip">ZIP Code</label>
-            <input type="text" id="zip" name="zip" placeholder="" />
-          </div>
-        </div>
-        <div class="form-row single">
-          <div class="form-group full-width">
-            <label for="email">Email*</label>
-            <input type="email" id="email" name="email" placeholder="" />
-          </div>
-        </div>
-        <div class="submit-btn-row">
-          <button type="submit" class="submit-btn">GET THE GUIDE</button>
-        </div>
-      </form>
-      <div class="form-note">
-        Stay informed by signing up to receive email tips, action alerts,
-        promotions to support our work and more from EWG. You can opt-out at any
-        time.
+    <div class="hazard-header fade-in delay-1">
+      <div class="hazard-title"></div>
+      <div class="hazard-links">
+        <a id="scoreLink" href="how-we-determine-scores.html">HOW WE DETERMINE SCORES</a>
+        <span class="divider">|</span>
+        <a id="verifiedLink" href="learn-more-ewg-verified.html">LEARN MORE ABOUT EWG VERIFIED®</a>
       </div>
     </div>
-    <div class="background-image"></div>
 
-    <!-- Tách phần gửi email sang file ngoài -->
-    <script src="assets/js/guide-email.js"></script>
-    <script>
-      setupGuideEmailForm();
-    </script>
+    <div class="hazard-container">
+      <img src="assets/images/hazard-score-range.png" alt="Hazard Score Range" class="hazard-img fade-in delay-2" />
+      <button class="activate-btn fade-in delay-3" id="activateBtn">
+        Activate Cosafe
+      </button>
+    </div>
 
-    <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const query = urlParams.get("query");
-      if (query) {
-        document.querySelector(".search-bar").value = query;
-      }
+    <div class="ewg-products">
+      <div class="fade-in delay-4">
+        <div class="header-with-sort">
+          <select id="sortOption" class="sort-select">
+            <option value="default">Sort: Default</option>
+            <option value="asc">Sort: A → Z</option>
+            <option value="desc">Sort: Z → A</option>
+          </select>
+          <div class="searching-title"></div>
+          <p class="center-text"></p>
+        </div>
+      </div>
+      <div class="product-grid"></div>
+    </div>
+  </div>
 
-      const scoreLink = document.getElementById("scoreLink");
-      const verifiedLink = document.getElementById("verifiedLink");
+  <div class="pagination" id="pagination"></div>
 
-      scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(
-        query
-      )}`;
-      verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(
-        query
-      )}`;
-    </script>
+  <div class="background-image"></div>
 
-    <script>
-      const button = document.getElementById("activateBtn");
-      window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true";
-      button.textContent = window.isCosafeActive
+  <div class="form-section-bg">
+    <div class="guide-title">
+      GET YOUR FREE COPY OF EWG’S QUICK TIPS FOR<br />
+      CHOOSING SAFER PERSONAL CARE PRODUCTS!
+    </div>
+    <form autocomplete="off">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="country">Country</label>
+          <select id="country" name="country">
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+            <option value="VN" selected>Vietnam</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="zip">ZIP Code</label>
+          <input type="text" id="zip" name="zip" placeholder="" />
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group full-width">
+          <label for="email">Email*</label>
+          <input type="email" id="email" name="email" placeholder="" />
+        </div>
+      </div>
+      <div class="submit-btn-row">
+        <button type="submit" class="submit-btn">GET THE GUIDE</button>
+      </div>
+    </form>
+    <div class="form-note">
+      Stay informed by signing up to receive email tips, action alerts,
+      promotions to support our work and more from EWG. You can opt-out at any
+      time.
+    </div>
+  </div>
+  <div class="background-image"></div>
+
+  <!-- Tách phần gửi email sang file ngoài -->
+  <script src="assets/js/guide-email.js"></script>
+  <script>
+    setupGuideEmailForm();
+  </script>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get("query");
+    if (query) {
+      document.querySelector(".search-bar").value = query;
+    }
+
+    const scoreLink = document.getElementById("scoreLink");
+    const verifiedLink = document.getElementById("verifiedLink");
+
+    scoreLink.href = `how-we-determine-scores.html?query=${encodeURIComponent(
+      query
+    )}`;
+    verifiedLink.href = `learn-more-ewg-verified.html?query=${encodeURIComponent(
+      query
+    )}`;
+  </script>
+
+  <script>
+    const button = document.getElementById("activateBtn");
+    window.isCosafeActive = localStorage.getItem("isCosafeActive") === "true";
+    button.textContent = window.isCosafeActive
+      ? "Deactivate Cosafe"
+      : "Activate Cosafe";
+
+    button.addEventListener("click", function () {
+      window.isCosafeActive = !window.isCosafeActive;
+      localStorage.setItem("isCosafeActive", window.isCosafeActive);
+      this.textContent = window.isCosafeActive
         ? "Deactivate Cosafe"
         : "Activate Cosafe";
+      fetchProducts(query, currentPage);
+    });
+  </script>
 
-      button.addEventListener("click", function () {
-        window.isCosafeActive = !window.isCosafeActive;
-        localStorage.setItem("isCosafeActive", window.isCosafeActive);
-        this.textContent = window.isCosafeActive
-          ? "Deactivate Cosafe"
-          : "Activate Cosafe";
-        fetchProducts(query, currentPage);
-      });
-    </script>
+  <script>
+    let products = [];
+    let totalPages = 1;
+    let totalProducts = 0;
+    const itemsPerPage = 20;
+    let currentPage = 1;
+    let currentSort = "default";
 
-    <script>
-      let products = [];
-      let totalPages = 1;
-      let totalProducts = 0;
-      const itemsPerPage = 20;
-      let currentPage = 1;
-      let currentSort = "default";
+    const productGrid = document.querySelector(".product-grid");
 
-      const productGrid = document.querySelector(".product-grid");
+    const hazardTitle = document.querySelector(".hazard-title");
+    const searchingTitle = document.querySelector(".searching-title");
 
-      const hazardTitle = document.querySelector(".hazard-title");
-      const searchingTitle = document.querySelector(".searching-title");
+    // Hàm gọi API tìm sản phẩm
+    async function fetchProducts(query, currentPage) {
+      console.log("Gọi fetchProducts với query:", query);
 
-      // Hàm gọi API tìm sản phẩm
-      async function fetchProducts(query, currentPage) {
-        console.log("Gọi fetchProducts với query:", query);
+      try {
+        // Thử gọi API /safety trước
+        const safetyResponse = await fetch("http://127.0.0.1:8000/safety", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: query }),
+        });
 
-        try {
-          // Thử gọi API /safety trước
-          const safetyResponse = await fetch("http://127.0.0.1:8000/safety", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: query }),
-          });
+        if (!safetyResponse.ok) {
+          throw new Error(
+            `HTTP error in /safety! Status: ${safetyResponse.status}`
+          );
+        }
 
-          if (!safetyResponse.ok) {
-            throw new Error(
-              `HTTP error in /safety! Status: ${safetyResponse.status}`
-            );
-          }
+        const safetyData = await safetyResponse.json();
+        console.log("Dữ liệu trả về từ API /safety:", safetyData);
 
-          const safetyData = await safetyResponse.json();
-          console.log("Dữ liệu trả về từ API /safety:", safetyData);
+        // Nếu API /safety trả về kết quả hợp lệ (có name và score)
+        if (safetyData.name && safetyData.score !== undefined) {
+          products = [
+            {
+              title: safetyData.name,
+              score: safetyData.score || 0,
+              search_score: 1.0, // Gán search_score mặc định cho kết quả từ /safety
+              img:
+                safetyData.link_image ||
+                `assets/images/product-placeholder.jpg`, // Ảnh mặc định
+            },
+          ];
 
-          // Nếu API /safety trả về kết quả hợp lệ (có name và score)
-          if (safetyData.name && safetyData.score !== undefined) {
-            products = [
-              {
-                title: safetyData.name,
-                score: safetyData.score || 0,
-                search_score: 1.0, // Gán search_score mặc định cho kết quả từ /safety
-                img:
-                  safetyData.link_image ||
-                  `assets/images/product-placeholder.jpg`, // Ảnh mặc định
-              },
-            ];
-
-            // Cập nhật giao diện
-            searchingTitle.textContent = `Search results for: "${query}" (1 product)`;
-            updatePagination();
-            renderProducts(currentPage);
-            return;
-          }
-
-          // Nếu không tìm thấy sản phẩm từ /safety, gọi API /search
-          const searchResponse = await fetch("http://127.0.0.1:8000/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              keyword: query,
-              page: currentPage,
-              size: itemsPerPage,
-              sort: currentSort,
-            }),
-          });
-
-          if (!searchResponse.ok) {
-            throw new Error(
-              `HTTP error in /search! Status: ${searchResponse.status}`
-            );
-          }
-
-          const searchData = await searchResponse.json();
-          console.log("Dữ liệu trả về từ API /search:", searchData);
-
-          // Xử lý trường hợp "Không tìm thấy sản phẩm"
-          if (
-            searchData.message === "Không tìm thấy sản phẩm" ||
-            (searchData.products && searchData.products.length === 0)
-          ) {
-            productGrid.innerHTML =
-              '<p class="no-results">No products matched your search.</p>';
-            products = [];
-            updatePagination();
-            return;
-          }
-
-          // Chuyển đổi dữ liệu API thành định dạng hiển thị
-          products = searchData.products.map((product) => ({
-            title: product.name,
-            score: product.score || 0,
-            search_score: product.search_score,
-            img: product.link_image || `assets/images/product-placeholder.jpg`, // Ảnh mặc định
-          }));
-
-          // Cập nhật tiêu đề hiển thị
-          totalProducts = searchData.total || products.length;
-          searchingTitle.textContent = `Search results for: "${query}" (${totalProducts} products)`;
+          // Cập nhật giao diện
+          searchingTitle.textContent = `Search results for: "${query}" (1 product)`;
           updatePagination();
           renderProducts(currentPage);
-        } catch (error) {
-          console.error("Error fetching products:", error);
+          return;
+        }
+
+        // Nếu không tìm thấy sản phẩm từ /safety, gọi API /search
+        const searchResponse = await fetch("http://127.0.0.1:8000/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            keyword: query,
+            page: currentPage,
+            size: itemsPerPage,
+            sort: currentSort,
+          }),
+        });
+
+        if (!searchResponse.ok) {
+          throw new Error(
+            `HTTP error in /search! Status: ${searchResponse.status}`
+          );
+        }
+
+        const searchData = await searchResponse.json();
+        console.log("Dữ liệu trả về từ API /search:", searchData);
+
+        // Xử lý trường hợp "Không tìm thấy sản phẩm"
+        if (
+          searchData.message === "Không tìm thấy sản phẩm" ||
+          (searchData.products && searchData.products.length === 0)
+        ) {
           productGrid.innerHTML =
-            '<p class="error-message">Error loading product data. Please try again.</p>';
+            '<p class="no-results">No products matched your search.</p>';
           products = [];
           updatePagination();
+          return;
         }
+
+        // Chuyển đổi dữ liệu API thành định dạng hiển thị
+        products = searchData.products.map((product) => ({
+          title: product.name,
+          score: product.score || 0,
+          search_score: product.search_score,
+          img: product.link_image || `assets/images/product-placeholder.jpg`, // Ảnh mặc định
+        }));
+
+        // Cập nhật tiêu đề hiển thị
+        totalProducts = searchData.total || products.length;
+        searchingTitle.textContent = `Search results for: "${query}" (${totalProducts} products)`;
+        updatePagination();
+        renderProducts(currentPage);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        productGrid.innerHTML =
+          '<p class="error-message">Error loading product data. Please try again.</p>';
+        products = [];
+        updatePagination();
       }
+    }
 
-      function updatePagination() {
-        totalPages = Math.ceil(totalProducts / itemsPerPage) || 1;
-        renderPagination();
-      }
+    function updatePagination() {
+      totalPages = Math.ceil(totalProducts / itemsPerPage) || 1;
+      renderPagination();
+    }
 
-      function renderProducts(page) {
-        productGrid.innerHTML = "";
+    function renderProducts(page) {
+      productGrid.innerHTML = "";
 
-        products.forEach((prod, index) => {
-          const card = document.createElement("div");
-          card.classList.add("product-card");
+      products.forEach((prod, index) => {
+        const card = document.createElement("div");
+        card.classList.add("product-card");
 
-          card.innerHTML = `
+        card.innerHTML = `
           <img src="${prod.img}" alt="${prod.title}">
           <div class="title">${prod.title}</div>
         `;
 
-          card.addEventListener("click", () => {
-            const encodedTitle = encodeURIComponent(prod.title);
+        card.addEventListener("click", () => {
+          const encodedTitle = encodeURIComponent(prod.title);
 
-            window.location.href = `product-detail.html?query=${query}&title=${encodedTitle}`;
-          });
-
-          productGrid.appendChild(card);
+          window.location.href = `product-detail.html?query=${query}&title=${encodedTitle}`;
         });
 
-        if (window.isCosafeActive) {
-          document.querySelectorAll(".title").forEach((el) => {
-            const productName = el.textContent.trim();
+        productGrid.appendChild(card);
+      });
 
-            el.classList.remove(
-              "green-highlight",
-              "yellow-highlight",
-              "red-highlight"
-            );
-            const color = getColorForProduct(productName);
-            if (color == "green") {
-              el.classList.add("green-highlight");
-            } else if (color == "yellow") {
-              el.classList.add("yellow-highlight");
-            } else if (color == "red") {
-              el.classList.add("red-highlight");
-            }
-          });
-        }
-      }
+      if (window.isCosafeActive) {
+        document.querySelectorAll(".title").forEach((el) => {
+          const productName = el.textContent.trim();
 
-      function renderPagination() {
-        const pagination = document.getElementById("pagination");
-        pagination.innerHTML = "";
-
-        // Nút First
-        const firstBtn = document.createElement("button");
-        firstBtn.textContent = "First";
-        firstBtn.disabled = currentPage === 1;
-        firstBtn.onclick = () => {
-          currentPage = 1;
-          fetchProducts(query, currentPage);
-        };
-        pagination.appendChild(firstBtn);
-
-        // Nút Previous
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "Previous";
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.onclick = () => {
-          if (currentPage > 1) {
-            currentPage--;
-            fetchProducts(query, currentPage);
+          el.classList.remove(
+            "green-highlight",
+            "yellow-highlight",
+            "red-highlight"
+          );
+          const color = getColorForProduct(productName);
+          if (color == "green") {
+            el.classList.add("green-highlight");
+          } else if (color == "yellow") {
+            el.classList.add("yellow-highlight");
+          } else if (color == "red") {
+            el.classList.add("red-highlight");
           }
-        };
-        pagination.appendChild(prevBtn);
-
-        // Số trang dạng ... 2 3 [4] 5 6 ...
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, currentPage + 2);
-
-        if (startPage > 1) {
-          const dot = document.createElement("span");
-          dot.textContent = "...";
-          pagination.appendChild(dot);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-          const btn = document.createElement("button");
-          btn.textContent = i;
-          if (i === currentPage) btn.classList.add("active-page");
-          btn.disabled = i === currentPage;
-          btn.onclick = () => {
-            currentPage = i;
-            fetchProducts(query, currentPage);
-          };
-          pagination.appendChild(btn);
-        }
-
-        if (endPage < totalPages) {
-          const dot = document.createElement("span");
-          dot.textContent = "...";
-          pagination.appendChild(dot);
-        }
-
-        // Nút Next
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "Next";
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.onclick = () => {
-          if (currentPage < totalPages) {
-            currentPage++;
-            fetchProducts(query, currentPage);
-          }
-        };
-        pagination.appendChild(nextBtn);
-
-        // Nút Last
-        const lastBtn = document.createElement("button");
-        lastBtn.textContent = "Last";
-        lastBtn.disabled = currentPage === totalPages;
-        lastBtn.onclick = () => {
-          currentPage = totalPages;
-          fetchProducts(query, currentPage);
-        };
-        pagination.appendChild(lastBtn);
-
-        // Thông tin tổng
-        const info = document.createElement("span");
-        info.textContent = ` Page ${currentPage} / ${totalPages} `;
-        info.style.marginLeft = "10px";
-        pagination.appendChild(info);
-      }
-
-      document
-        .getElementById("sortOption")
-        .addEventListener("change", function () {
-          currentSort = this.value;
-          currentPage = 1;
-          fetchProducts(query, currentPage);
         });
+      }
+    }
 
-      fetchProducts(query, currentPage);
+    function renderPagination() {
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
 
-      function getColorForProduct(productName) {
-        // Tìm sản phẩm trong mảng products dựa trên productName
-        const prod = products.find((p) => p.title === productName);
+      // Nút First
+      const firstBtn = document.createElement("button");
+      firstBtn.textContent = "First";
+      firstBtn.disabled = currentPage === 1;
+      firstBtn.onclick = () => {
+        currentPage = 1;
+        fetchProducts(query, currentPage);
+      };
+      pagination.appendChild(firstBtn);
 
-        // Nếu không tìm thấy sản phẩm hoặc score không phải là số, trả về null
-        if (!prod || typeof prod.score !== "number") return null;
+      // Nút Previous
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "Previous";
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          fetchProducts(query, currentPage);
+        }
+      };
+      pagination.appendChild(prevBtn);
 
-        const score = prod.score;
+      // Số trang dạng ... 2 3 [4] 5 6 ...
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, currentPage + 2);
 
-        // Xác định màu dựa trên khoảng giá trị của score
-        if (score >= 0 && score <= 2) return "green";
-        if (score >= 3 && score <= 6) return "yellow";
-        if (score >= 7 && score <= 10) return "red";
-
-        // Nếu score ngoài khoảng 0-10, trả về null
-        return null;
+      if (startPage > 1) {
+        const dot = document.createElement("span");
+        dot.textContent = "...";
+        pagination.appendChild(dot);
       }
 
-      // Gọi API và render khi trang được load
-      (async () => {
-        if (query) {
-          await fetchProducts(query, currentPage);
-        } else {
-          productGrid.innerHTML =
-            '<p class="no-query">Please enter a search keyword to view the results..</p>';
-          console.warn("Không có query trong URL, không fetch được sản phẩm.");
-        }
-      })();
-    </script>
+      for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add("active-page");
+        btn.disabled = i === currentPage;
+        btn.onclick = () => {
+          currentPage = i;
+          fetchProducts(query, currentPage);
+        };
+        pagination.appendChild(btn);
+      }
 
-    <!-- Tách phần script xử lý hình ảnh sang file riêng -->
-    <script src="assets/js/image-search.js"></script>
-  </body>
+      if (endPage < totalPages) {
+        const dot = document.createElement("span");
+        dot.textContent = "...";
+        pagination.appendChild(dot);
+      }
+
+      // Nút Next
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "Next";
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          fetchProducts(query, currentPage);
+        }
+      };
+      pagination.appendChild(nextBtn);
+
+      // Nút Last
+      const lastBtn = document.createElement("button");
+      lastBtn.textContent = "Last";
+      lastBtn.disabled = currentPage === totalPages;
+      lastBtn.onclick = () => {
+        currentPage = totalPages;
+        fetchProducts(query, currentPage);
+      };
+      pagination.appendChild(lastBtn);
+
+      // Thông tin tổng
+      const info = document.createElement("span");
+      info.textContent = ` Page ${currentPage} / ${totalPages} `;
+      info.style.marginLeft = "10px";
+      pagination.appendChild(info);
+    }
+
+    document
+      .getElementById("sortOption")
+      .addEventListener("change", function () {
+        currentSort = this.value;
+        currentPage = 1;
+        fetchProducts(query, currentPage);
+      });
+
+    fetchProducts(query, currentPage);
+
+    function getColorForProduct(productName) {
+      // Tìm sản phẩm trong mảng products dựa trên productName
+      const prod = products.find((p) => p.title === productName);
+
+      // Nếu không tìm thấy sản phẩm hoặc score không phải là số, trả về null
+      if (!prod || typeof prod.score !== "number") return null;
+
+      const score = prod.score;
+
+      // Xác định màu dựa trên khoảng giá trị của score
+      if (score >= 0 && score <= 2) return "green";
+      if (score >= 3 && score <= 6) return "yellow";
+      if (score >= 7 && score <= 10) return "red";
+
+      // Nếu score ngoài khoảng 0-10, trả về null
+      return null;
+    }
+
+    // Gọi API và render khi trang được load
+    (async () => {
+      if (query) {
+        await fetchProducts(query, currentPage);
+      } else {
+        productGrid.innerHTML =
+          '<p class="no-query">Please enter a search keyword to view the results..</p>';
+        console.warn("Không có query trong URL, không fetch được sản phẩm.");
+      }
+    })();
+  </script>
+
+  <!-- Tách phần script xử lý hình ảnh sang file riêng -->
+  <script src="assets/js/image-search.js"></script>
+  <script src="assets/js/autocomplete.js"></script>
+</body>
+
 </html>

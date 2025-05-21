@@ -336,6 +336,86 @@ async def extract_labels(
             detail=f"Lỗi server: {str(e)}"
         )
 
+@app.post("/autocomplete")
+async def autocomplete(request: SearchRequest):
+    """API endpoint tối ưu cho tính năng gợi ý tìm kiếm"""
+    try:
+        # Giới hạn kích thước kết quả trả về
+        request.size = min(request.size, 10)  # Tối đa 10 gợi ý
+        
+        keywords = request.keyword.split()
+        should_clauses = []
+        
+        # Ưu tiên prefix match cho autocomplete
+        for keyword in keywords:
+            should_clauses.extend([
+                {
+                    "prefix": {
+                        "name": {
+                            "value": keyword,
+                            "boost": 3.0  # Tăng boost cho prefix match
+                        }
+                    }
+                },
+                {
+                    "match_phrase_prefix": {
+                        "name": {
+                            "query": keyword,
+                            "boost": 2.0
+                        }
+                    }
+                },
+                {
+                    "fuzzy": {
+                        "name": {
+                            "value": keyword,
+                            "fuzziness": "AUTO",
+                            "boost": 1.0
+                        }
+                    }
+                }
+            ])
+        
+        # Thêm match phrase cho toàn bộ query
+        should_clauses.append({
+            "match_phrase_prefix": {
+                "name": {
+                    "query": request.keyword,
+                    "boost": 5.0
+                }
+            }
+        })
+        
+        result = es.search(
+            index="cs_products_data",
+            query={
+                "bool": {
+                    "should": should_clauses,
+                    "minimum_should_match": 1
+                }
+            },
+            size=request.size,
+            _source=["name", "score", "link_image"]  # Chỉ lấy các trường cần thiết
+        )
+        
+        if not result["hits"]["hits"]:
+            return {"products": [], "message": "Không tìm thấy gợi ý"}
+        
+        products = []
+        for hit in result["hits"]["hits"]:
+            source = hit["_source"]
+            products.append({
+                "name": source["name"],
+                "score": source.get("score", 0),
+                "search_score": hit["_score"],
+                "link_image": source.get("link_image", "assets/images/product-placeholder.jpg")
+            })
+        
+        return {"products": products, "total": result["hits"]["total"]["value"]}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
