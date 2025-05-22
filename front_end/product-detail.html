@@ -279,13 +279,16 @@
 
         async function fetchProductData(productName) {
           try {
-            const response = await fetch("http://localhost:8000/get-all", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ name: productName }),
-            });
+            const response = await fetch(
+              "http://localhost:8000/api/products/get-all",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name: productName }),
+              }
+            );
 
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);

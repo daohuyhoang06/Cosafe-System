@@ -223,11 +223,14 @@
 
         try {
           // Thử gọi API /safety trước
-          const safetyResponse = await fetch("http://127.0.0.1:8000/safety", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: query }),
-          });
+          const safetyResponse = await fetch(
+            "http://127.0.0.1:8000/api/products/safety",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: query }),
+            }
+          );
 
           if (!safetyResponse.ok) {
             throw new Error(
@@ -259,16 +262,19 @@
           }
 
           // Nếu không tìm thấy sản phẩm từ /safety, gọi API /search
-          const searchResponse = await fetch("http://127.0.0.1:8000/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              keyword: query,
-              page: currentPage,
-              size: itemsPerPage,
-              sort: currentSort,
-            }),
-          });
+          const searchResponse = await fetch(
+            "http://127.0.0.1:8000/api/products/search",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                keyword: query,
+                page: currentPage,
+                size: itemsPerPage,
+                sort: currentSort,
+              }),
+            }
+          );
 
           if (!searchResponse.ok) {
             throw new Error(
