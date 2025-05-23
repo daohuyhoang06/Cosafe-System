@@ -9,3 +9,6 @@ starlette
 google.generativeai
 dotenv
 pydantic
+scrapy
+selenium
+
