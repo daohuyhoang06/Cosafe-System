@@ -18,7 +18,7 @@ es = Elasticsearch([ES_CLOUD_URL], api_key=ES_API_KEY)
 # Request model
 class NERRequest(BaseModel):
     content: str
-
+# lấy thôgn tin và bôi màu thành phần
 @router.post("/name-entity-recognition")
 async def ner_and_score(request: NERRequest):
     try:
@@ -27,7 +27,7 @@ async def ner_and_score(request: NERRequest):
             return {"ingredients": [], "message": "Không tìm thấy thành phần trong văn bản"}
         ingredient_list = []
         for ingredient in ingredients:
-            result = es.search(
+            result =  es.search(
                 index="cs_products_data",
                 query={
                     "bool": {

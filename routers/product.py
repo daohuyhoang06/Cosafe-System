@@ -24,7 +24,9 @@ class SearchRequest(BaseModel):
     size: int = 20
     sort: str = "default"  # "default", "asc", "desc"
 
-@router.post("/safety")
+@router.post("/safety") 
+
+# lấy thông tin để bôi sản phẩm ( ngoài màn hình)
 async def safety_check(request: SafetyRequest):
     try:
         result = es.search(
@@ -44,6 +46,7 @@ async def safety_check(request: SafetyRequest):
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @router.post("/get-all")
+# hiển thị tất cả các thôgn tin sản phẩm ( khi ấn vào sản phẩm)
 async def get_all(request: SafetyRequest):
     try:
         result = es.search(
@@ -63,6 +66,7 @@ async def get_all(request: SafetyRequest):
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @router.post("/search")
+# tìm kiếm và hiển thị các sản phẩm
 async def products_search(request: SearchRequest):
     try:
         keywords = request.keyword.split()
