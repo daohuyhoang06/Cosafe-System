@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, MagicMock
-from main import app  # thay main bằng tên file app của bạn
+from main import app  
 
 @pytest.fixture
 def client():
@@ -13,7 +13,7 @@ def mock_elasticsearch(monkeypatch):
     """Mock Elasticsearch client async cho các test."""
     mock = MagicMock()
     mock.search = AsyncMock()
-    # Thay "main.es_client" thành đúng biến Elasticsearch client trong app bạn
+    
     monkeypatch.setattr("main.es", mock)
     return mock
 

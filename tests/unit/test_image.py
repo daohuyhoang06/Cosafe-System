@@ -16,6 +16,7 @@ async def test_image_process_success(client: TestClient, mock_gemini, sample_ima
     )
     assert response.status_code == 200
 
+
 @pytest.mark.asyncio
 async def test_image_process_invalid_file(client: TestClient):
     """Kiểm tra lỗi khi file không phải ảnh."""
@@ -24,6 +25,7 @@ async def test_image_process_invalid_file(client: TestClient):
         files={"file": ("test.txt", b"not_an_image", "text/plain")}
     )
     assert response.status_code == 400
+    
 
 @pytest.mark.asyncio
 async def test_image_process_gemini_error(client: TestClient, mock_gemini, sample_image):
@@ -36,6 +38,7 @@ async def test_image_process_gemini_error(client: TestClient, mock_gemini, sampl
         files={"file": ("test.jpg", sample_image, "image/jpeg")}
     )
     assert response.status_code == 500
+   
 
 @pytest.mark.asyncio
 async def test_image_process_empty_file(client: TestClient):
@@ -45,16 +48,18 @@ async def test_image_process_empty_file(client: TestClient):
         files={"file": ("empty.jpg", b"", "image/jpeg")}
     )
     assert response.status_code == 500
+   
 
 @pytest.mark.asyncio
 async def test_image_process_large_file(client: TestClient):
     """Kiểm tra lỗi khi file ảnh quá lớn."""
-    large_image = b"fake_image_data" * 1000000  # Giả lập file 10MB
+    large_image = b"fake_image_data" * 1000000  # Giả lập file ~10MB
     response = client.post(
         "/api/image/image-process",
         files={"file": ("large.jpg", large_image, "image/jpeg")}
     )
     assert response.status_code == 400
+   
 
 @pytest.mark.asyncio
 async def test_image_process_invalid_json(client: TestClient, mock_gemini, sample_image):
@@ -68,6 +73,8 @@ async def test_image_process_invalid_json(client: TestClient, mock_gemini, sampl
     )
     assert response.status_code == 500
 
+
+
 @pytest.mark.asyncio
 async def test_image_process_no_labels(client: TestClient, mock_gemini, sample_image):
     """Kiểm tra khi Gemini không tìm thấy nhãn."""
@@ -79,3 +86,4 @@ async def test_image_process_no_labels(client: TestClient, mock_gemini, sample_i
         files={"file": ("test.jpg", sample_image, "image/jpeg")}
     )
     assert response.status_code == 200
+   
