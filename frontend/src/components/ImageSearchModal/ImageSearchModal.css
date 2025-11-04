@@ -1,0 +1,100 @@
+.image-search-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+}
+
+.image-search-modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.close-modal {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-modal:hover {
+  color: #000;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.drop-area.dragover {
+  border-color: #4CAF50;
+  background-color: #f0f8f0;
+}
+
+.drop-image {
+  max-width: 100px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.drop-area p {
+  margin: 0;
+  color: #666;
+}
+
+.upload-link {
+  color: #4CAF50;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.upload-link:hover {
+  color: #45a049;
+}
+
+.loading {
+  margin-top: 15px;
+  text-align: center;
+  color: #4CAF50;
+  font-weight: bold;
+}

@@ -1,0 +1,20 @@
+.header {
+  background-color: white;
+  padding: 20px 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-link {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c5f2d;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.logo-link:hover {
+  color: #4CAF50;
+}

@@ -1,1 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+venv/
+env/
+ENV/
+
+# Environment
 .env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Elasticsearch
+elasticsearch-data/
+
+# Data exports / local database files (do not commit large data dumps)
+data/*.json
+data/**/*.json
+data/data_elasticsearch/*.ndjson
+data/**/output_*.json
+*.ndjson
+
+# Local DB files
+*.db
+*.sqlite
+*.sqlite3
+
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage & Test
+.coverage
+htmlcov/
+*.tmp
+*.bak
+
+# Old files (if any)
+test_*/
+front_end/
+routers/
+email_test/
+image_test/
