@@ -1,29 +1,32 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.models import SafetyRequest, SearchRequest
 from app.services import ProductService
 
 router = APIRouter()
 
-def get_product_service():
-    """Dependency to get ProductService instance"""
-    return ProductService()
+# Singleton service instance (tối ưu hóa - tránh tạo instance mỗi request)
+_product_service = None
+
+def get_product_service() -> ProductService:
+    """Dependency to get ProductService instance (singleton pattern)"""
+    global _product_service
+    if _product_service is None:
+        _product_service = ProductService()
+    return _product_service
 
 @router.post("/safety")
-async def safety_check(request: SafetyRequest):
+async def safety_check(request: SafetyRequest, service: ProductService = Depends(get_product_service)):
     """Get product safety information for display"""
-    service = get_product_service()
     return await service.get_product_safety(request.name)
 
 @router.post("/get-all")
-async def get_all(request: SafetyRequest):
+async def get_all(request: SafetyRequest, service: ProductService = Depends(get_product_service)):
     """Get all product information (when clicking on product)"""
-    service = get_product_service()
     return await service.get_product_details(request.name)
 
 @router.post("/search")
-async def products_search(request: SearchRequest):
+async def products_search(request: SearchRequest, service: ProductService = Depends(get_product_service)):
     """Search and display products with pagination and sorting"""
-    service = get_product_service()
     return await service.search_products(
         keyword=request.keyword,
         page=request.page,
@@ -32,9 +35,8 @@ async def products_search(request: SearchRequest):
     )
 
 @router.post("/autocomplete")
-async def autocomplete(request: SearchRequest):
+async def autocomplete(request: SearchRequest, service: ProductService = Depends(get_product_service)):
     """Autocomplete suggestions for search"""
-    service = get_product_service()
     return await service.autocomplete(
         keyword=request.keyword,
         size=request.size

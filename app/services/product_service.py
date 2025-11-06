@@ -1,28 +1,40 @@
 from app.core import get_es_client, settings
 from fastapi import HTTPException
+from functools import lru_cache
+from typing import Dict, Any
 
 class ProductService:
     def __init__(self):
         self.es = get_es_client()
         self.index = settings.ES_INDEX
     
+    # Cache cho get_product_details để tránh query lại sản phẩm đã xem
+    @lru_cache(maxsize=128)
+    def _get_cached_product(self, product_name: str) -> Dict[str, Any]:
+        """Internal cached method for product lookup"""
+        result = self.es.search(
+            index=self.index,
+            query={"term": {"name.keyword": product_name}},
+            size=1
+        )
+        
+        if not result["hits"]["hits"]:
+            return None
+        
+        return result["hits"]["hits"][0]["_source"]
+    
     async def get_product_safety(self, product_name: str):
         """Get product safety information for display"""
         try:
-            result = self.es.search(
-                index=self.index,
-                query={"term": {"name.keyword": product_name}},
-                size=1
-            )
+            product = self._get_cached_product(product_name)
             
-            if not result["hits"]["hits"]:
+            if not product:
                 return {"message": "Không tìm thấy sản phẩm"}
             
-            hit = result["hits"]["hits"][0]["_source"]
             return {
-                "name": hit["name"],
-                "score": hit["score"],
-                "link_image": hit["link_image"]
+                "name": product["name"],
+                "score": product["score"],
+                "link_image": product["link_image"]
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
@@ -30,21 +42,17 @@ class ProductService:
     async def get_product_details(self, product_name: str):
         """Get all product information"""
         try:
-            result = self.es.search(
-                index=self.index,
-                query={"term": {"name.keyword": product_name}},
-                size=1
-            )
+            product = self._get_cached_product(product_name)
             
-            if not result["hits"]["hits"]:
+            if not product:
                 return {"message": "Không tìm thấy sản phẩm"}
             
-            return result["hits"]["hits"][0]["_source"]
+            return product
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
     
     async def search_products(self, keyword: str, page: int = 1, size: int = 20, sort: str = "default"):
-        """Search products with pagination and sorting"""
+        """Search products with pagination and sorting (tối ưu hóa với _source filtering)"""
         try:
             from_value = (page - 1) * size
             
@@ -70,7 +78,8 @@ class ProductService:
                 "index": self.index,
                 "query": query,
                 "from_": from_value,
-                "size": size
+                "size": size,
+                "_source": ["name", "score", "link_image"]  # Chỉ lấy fields cần thiết
             }
             
             if sort_option:

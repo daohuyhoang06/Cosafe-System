@@ -20,11 +20,16 @@ class ElasticsearchClient:
             
         ES_HOST = os.getenv("ES_HOST", "http://localhost:9200")
         
-        # Elasticsearch 9.x simplified initialization
+        # Elasticsearch 9.x với connection pooling tối ưu hóa
         self._client = Elasticsearch(
             ES_HOST,
             verify_certs=False,
             request_timeout=30,
+            max_retries=3,
+            retry_on_timeout=True,
+            # Tối ưu connection pooling
+            connections_per_node=10,  # Tăng số connection đồng thời
+            http_compress=True,  # Nén HTTP để giảm băng thông
             headers={"accept": "application/json", "content-type": "application/json"}
         )
         

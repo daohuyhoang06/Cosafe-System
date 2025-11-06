@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from app.core import settings
 from app.api import product_router, ner_router, image_router, email_router
 
@@ -19,6 +20,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # Tối ưu hóa: Nén response để giảm băng thông
+    app.add_middleware(GZipMiddleware, minimum_size=1000)
     
     # Include routers
     app.include_router(product_router, prefix="/api/products", tags=["Products"])
