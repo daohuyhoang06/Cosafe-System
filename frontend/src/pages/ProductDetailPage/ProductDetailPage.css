@@ -58,7 +58,112 @@
 .score-value {
   font-size: 24px;
   font-weight: 700;
-  color: #4CAF50;
+  padding: 5px 15px;
+  border-radius: 12px;
+  color: white;
+}
+
+.score-value.score-1,
+.score-value.score-2 {
+  background: #4CAF50;
+}
+
+.score-value.score-3,
+.score-value.score-4 {
+  background: #FFC107;
+  color: #333;
+}
+
+.score-value.score-5,
+.score-value.score-6 {
+  background: #FF9800;
+}
+
+.score-value.score-7,
+.score-value.score-8,
+.score-value.score-9,
+.score-value.score-10 {
+  background: #F44336;
+}
+
+.score-description {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.product-ewg-link {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: #1976D2;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.product-ewg-link:hover {
+  background: #0D47A1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.concerns-box {
+  margin-top: 30px;
+  padding: 20px;
+  background: #FFF9E6;
+  border-radius: 8px;
+  border-left: 4px solid #FFC107;
+}
+
+.concerns-box h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.concerns-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.concern-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.concern-label {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.concern-value {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.concern-value.low {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.concern-value.moderate {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.concern-value.high {
+  background: #FFEBEE;
+  color: #C62828;
 }
 
 .ingredients-section {
@@ -70,31 +175,91 @@
   font-weight: 700;
   color: #333;
   margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #4CAF50;
 }
 
-.ingredients-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 15px;
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .ingredient-item {
   background: #f9f9f9;
-  padding: 12px 15px;
-  border-radius: 6px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border-left: 4px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.ingredient-item:hover {
+  background: #f0f7f4;
+  border-left-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.ingredient-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 8px;
 }
 
 .ingredient-name {
   font-weight: 600;
   color: #333;
+  font-size: 15px;
 }
 
 .ingredient-score {
-  color: #666;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Color coding cho score */
+.score-1 {
+  background: #4CAF50; /* Green - Very Safe */
+}
+
+.score-2 {
+  background: #8BC34A; /* Light Green - Safe */
+}
+
+.score-3,
+.score-4 {
+  background: #FFC107; /* Yellow - Moderate */
+}
+
+.score-5,
+.score-6 {
+  background: #FF9800; /* Orange - Moderate Concern */
+}
+
+.score-7,
+.score-8,
+.score-9,
+.score-10 {
+  background: #F44336; /* Red - High Concern */
+}
+
+.ingredient-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #1976D2;
+  text-decoration: none;
   font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.ingredient-link:hover {
+  color: #0D47A1;
+  text-decoration: underline;
 }
 
 .detail-section {
