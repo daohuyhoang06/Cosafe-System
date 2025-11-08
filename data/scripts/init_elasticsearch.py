@@ -1,13 +1,16 @@
 """
 Script to create Elasticsearch index and import sample data
-Run: python init_elasticsearch.py
+Run: python data/scripts/init_elasticsearch.py
 """
 
 from elasticsearch import Elasticsearch
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load env from project root
+project_root = Path(__file__).parent.parent.parent
+load_dotenv(project_root / ".env")
 
 ES_HOST = os.getenv("ES_HOST", "http://localhost:9200")
 ES_INDEX = os.getenv("ES_INDEX", "cs_products_data")

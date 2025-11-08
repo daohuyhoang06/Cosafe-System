@@ -85,7 +85,8 @@ catch {
 # Import data files
 Write-Host "`n[3/3] Import du lieu..." -ForegroundColor Cyan
 
-$dataDir = "data\data_elasticsearch"
+# Updated path - now relative to data/scripts/ folder
+$dataDir = "..\data_elasticsearch"
 $files = Get-ChildItem -Path $dataDir -Filter "part_*.ndjson" | Sort-Object Name
 
 if ($files.Count -eq 0) {

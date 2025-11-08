@@ -104,12 +104,13 @@ def import_data():
     # Create index
     create_index(es, ES_INDEX)
     
-    # Find all NDJSON files
-    data_dir = Path("data/data_elasticsearch")
+    # Find all NDJSON files - updated path from data/scripts/
+    script_dir = Path(__file__).parent
+    data_dir = script_dir.parent / "data_elasticsearch"
     ndjson_files = sorted(data_dir.glob("part_*.ndjson"))
     
     if not ndjson_files:
-        print("❌ Không tìm thấy file dữ liệu trong data/data_elasticsearch/")
+        print(f"❌ Không tìm thấy file dữ liệu trong {data_dir}")
         return False
     
     print(f"\n📦 Tìm thấy {len(ndjson_files)} files dữ liệu")
